@@ -1,0 +1,73 @@
+const { gql } = require('apollo-server');
+
+const typeDefs = gql`
+  type Query {
+   userData(id: ID!): User
+    me: User
+  }
+
+  type Mutation {
+    # if false, signup failed -- check errors
+    editCustomer(id: [ID]!): User!
+
+    # if false, cancellation failed -- check errors
+    deleteCustomer(id: ID!): User!
+
+    login(user: String): User
+
+    editUser(id:  ID!): User
+  }
+
+  input UserUpdate {
+    token: String!
+    message: String
+    username: String!
+    password: String!
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    salutation: Salutation
+    geburtstag: Date
+    telefon: String!
+    token: String
+  }
+
+  type UserAddress {
+    street: String
+    plz: String
+    stadt: String        
+  }
+
+  scalar Date
+
+  type LieferAngaben {
+    abweichendeOrtsbez: String
+    ablageort: String
+    anzahlParteien: Int
+    wunschdatum: Date
+    anmerkung: String
+  }
+
+  enum Salutation {
+    Herr
+    Frau
+    Familie
+    All
+    Firma
+  }
+
+  enum Status {
+    AKTIV
+    INAKTIV
+    GELOESCHT
+    BANKROTT
+    INTERESSENT
+    ABGELEHNT
+  }
+
+`;
+
+module.exports = typeDefs;
