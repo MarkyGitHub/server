@@ -306,3 +306,9 @@
   label: 'VertriebsApp format',
   timestamp: 'Apr-24-2023 18:38:47'
 }
+{
+  level: 'verbose',
+  message: 'Server is running at http://localhost:4000',
+  label: 'VertriebsApp format',
+  timestamp: 'Apr-24-2023 19:15:33'
+}

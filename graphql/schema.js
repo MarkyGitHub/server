@@ -66,8 +66,6 @@ const typeDefs = gql`
     BANKROTT
     INTERESSENT
     ABGELEHNT
-  }
-
-`;
+  } ` ;
 
 module.exports = typeDefs;

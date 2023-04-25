@@ -9,7 +9,10 @@ const CATEGORY = "VertriebsApp format";
 const typeDefs = require('./graphql/schema');
 const { RESTDataSource } = require("apollo-datasource-rest");
 
-const PwaBackendAPI = require("./services/rest/pwabackend");
+const CustomerAPI = require("./services/rest/CustomerAPI");
+const LoginAPI = require("./services/rest/LoginAPI");
+const TimeRecordingAPI = require("./services/rest/TimeRecordingAPI");
+const UserAPI = require("./services/rest/UserAPI");
 
 const aPlugin = {
   // Fires whenever a GraphQL request is received from a client.
@@ -95,25 +98,29 @@ const server = new ApolloServer({
     aPlugin,
     ApolloServerPluginLandingPageLocalDefault({ embed: true })],
   dataSources: () => {
+    restURL = process.env.pwabackend_local;
     return {
-      pwaBackendAPI: new PwaBackendAPI(),
+      customerAPI: new CustomerAPI(restURL),
+      loginAPI: new LoginAPI(restURL),
+      timeRecordingAPI: new TimeRecordingAPI(restURL),
+      userAPI: new UserAPI(restURL),
     };
   },
 });
 
 // Start our server if we're not in a test env.
 // if we're in a test env, we'll manually start it in a test
-if (process.env.NODE_ENV !== 'test') {
+/* if (process.env.NODE_ENV !== 'test') {
   server.listen().then(() => {
     console.log(`Server is running at http://localhost:4000`);
     logger.log('verbose', `Server is running at http://localhost:4000`);
   });
-}
+} */
 
 // export all the important pieces for integration/e2e tests to use
 module.exports = {
   typeDefs,
   logger,
-  ApolloServer,
+  ApolloServer, 
   server,
 };
