@@ -11,5 +11,14 @@ const resolvers = {
     user: async (_, __, { dataSources }) => {
       return dataSources.pwaBackendAPI.getUser();
     },
+    user: async (_, __, { dataSources }) => {
+      return dataSources.pwaBackendAPI.getUser();
+    },
+    user: async (_, __, { dataSources }) => {
+      return dataSources.loginAPI.postLogin();
+    },
+    user: async (_, __, { dataSources }) => {
+      return dataSources.pwaBackendAPI.getUser();
+    },
   },
 };
