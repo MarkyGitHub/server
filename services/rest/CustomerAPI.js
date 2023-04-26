@@ -64,3 +64,5 @@ class CustomerAPI extends RESTDataSource {
     }
 
 }
+
+module.exports = CustomerAPI;

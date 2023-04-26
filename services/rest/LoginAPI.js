@@ -6,17 +6,24 @@ class LoginAPI extends RESTDataSource {
         this.baseURL = $restURL;
     }
 
+    /*  willSendRequest(request) {
+         request.headers.set('Authorization', this.context.token);
+     } */
+
     // GET
     async getPing() {
-        return this.get(
-            `webresources/login` // path
-        );
+        const data = await this.get('https://mogo.ibry-it.local/pwabackend/webresources/login')
+        console.log(data);
+        return data
+        return this.get(`webresources/login`);
     }
 
-    // POST
+    /* // POST
     async postLogin(userLogin) {
         return this.post(
             `webresources/login/${encodeURIComponent(a)}` // path
         );
-    }
+    } */
 }
+
+module.exports = LoginAPI;

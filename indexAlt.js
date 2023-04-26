@@ -1,18 +1,20 @@
 require('dotenv').config();
 // Server declarations
-const { ApolloServer, gql } = require('apollo-server');
-const { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginInlineTrace } = require('apollo-server-core');
+const { ApolloServer } = require('apollo-server');
+const { ApolloServerPluginLandingPageLocalDefault } = require('apollo-server-core');
+const { ApolloServerPluginInlineTrace } = require("apollo-server-core");
 
 // Rest data source delarations
 const { RESTDataSource } = require("apollo-datasource-rest");
-//const CustomerAPI = require("./services/rest/CustomerAPI");
+const CustomerAPI = require("./services/rest/CustomerAPI");
 const LoginAPI = require("./services/rest/LoginAPI");
-//const TimeRecordingAPI = require("./services/rest/TimeRecordingAPI");
-//const UserAPI = require("./services/rest/UserAPI");
+const TimeRecordingAPI = require("./services/rest/TimeRecordingAPI");
+const UserAPI = require("./services/rest/UserAPI");
 
 // GraphQL types, etc. delarations
+const { gql } = require('apollo-server');
 const typeDefs = require('./graphql/schema');
-const resolvers = require('./graphql/resolvers');
+//const resolvers = require('./graphql/resolvers');
 
 const logger = require('./log/indexAlt');
 
@@ -39,28 +41,10 @@ const logger = require('./log/indexAlt');
   },
 };  */
 
-const dbConnection = () => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, 2000)
-  })
-}
 // Set up Apollo Server
 const server = new ApolloServer({
   typeDefs,
-  resolvers,
-  dataSources: () => {    
-    return {
-      //customerAPI: new CustomerAPI(restURL),     
-      loginAPI: new LoginAPI(process.env.pwabackend_local),
-      // timeRecordingAPI: new TimeRecordingAPI(restURL),
-      // userAPI: new UserAPI(restURL), 
-    }
-  },
-  context: async () => {
-    return {  }
-  },
+ // resolvers,
   logger,
   introspection: true,
   // csrfPrevention: true,
@@ -91,7 +75,7 @@ const server = new ApolloServer({
    }, */
   plugins: [
     {
-      /* async requestDidStart(requestContext) {
+      async requestDidStart(requestContext) {
         console.log('Request started ... Query is:\n' +
           requestContext.request.query);
         return {
@@ -106,30 +90,40 @@ const server = new ApolloServer({
             console.log('Validation started ...');
           },
         }
-      }, */
+      },
       async serverWillStart() {
         console.log('Server Bry-IT starting up....');
         //logger.log('Server Bry-IT starting up....');
       },
     },
-    ApolloServerPluginLandingPageLocalDefault({ embed: true })]
-    //ApolloServerPluginInlineTrace()],
 
+    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+    ApolloServerPluginInlineTrace()],
+
+  dataSources: () => {    
+    return {
+      restURL: process.env.pwabackend_local,
+      //customerAPI: new CustomerAPI(restURL),
+      loginAPI: new LoginAPI(restURL),
+     // timeRecordingAPI: new TimeRecordingAPI(restURL),
+     // userAPI: new UserAPI(restURL),
+    };
+  },
+ 
 });
 
 // Start our server if we're not in a test env.
 // if we're in a test env, we'll manually start it in a test
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test') {  
   server.listen().then(() => {
     console.log(`Server is running at http://localhost:4000`);
-    //logger.info('verbose', `Server is running at http://localhost:4000`);
+    //ogger.info('verbose', `Server is running at http://localhost:4000`);
   });
 }
 
 // export all the important pieces for integration/e2e tests to use
 module.exports = {
   typeDefs,
-  resolvers,
   logger,
   ApolloServer,
   server,

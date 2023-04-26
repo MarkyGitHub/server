@@ -4,9 +4,9 @@
     "description": "Bry-IT GmbH.",
     "main": "index.js",
     "scripts": {
-        "test": "jest",
-        "start": "nodemon index.js",
-        "start:ci": "node index.js"
+        "test": "",
+        "start": "nodemon --trace-warnings index.js",
+        "start:ci": "node --trace-warnings index.js"
     },
     "author": "MSchlichtmann",
     "license": "ISC",
@@ -29,6 +29,7 @@
     },
     "devDependencies": {
         "@apollo/rover": "^0.2.0",
+        "apollo": "^2.11.1",
         "apollo-link": "^1.2.3",
         "apollo-link-http": "^1.5.5",
         "jest": "^25.0.0",

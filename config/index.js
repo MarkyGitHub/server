@@ -12,11 +12,11 @@ module.exports = {
             "idle": 10000
         }
     },
-    "production": {       
+    "production": {
         "username": process.env.username,
         "password": process.env.password,
         "database": process.env.database,
-		 "host": process.env.host,
+        "host": process.env.host,
         "logging": false,
         "dialect": "mariadb",
         "pool": {
