@@ -42,3 +42,4 @@ class UserAPI extends RESTDataSource {
     }
 
 }
+module.exports = UserAPI;

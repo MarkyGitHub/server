@@ -57,3 +57,4 @@ class TimeRecordingAPI extends RESTDataSource {
     }
 
 }
+module.exports = TimeRecordingAPI;

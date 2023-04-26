@@ -1,9 +1,9 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-  type Query {
-   userData(id: ID!): User
-    me: User
+
+  type Query {   
+    getPing:String    
   }
 
   type Mutation {
