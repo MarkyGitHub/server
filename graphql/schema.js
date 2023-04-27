@@ -1,9 +1,11 @@
 const { gql } = require('apollo-server');
+//const { GraphQLJSON, GraphQLJSONObject } = require('graphql-type-json');
 
 const typeDefs = gql`
 
-  type Query {   
-    getPing:String    
+   type Query {   
+    getPing:String
+    postLogin:String
   }
 
   type Mutation {
@@ -11,9 +13,9 @@ const typeDefs = gql`
     editCustomer(id: [ID]!): User!
 
     # if false, cancellation failed -- check errors
-    deleteCustomer(id: ID!): User!
+    deleteCustomer(id: ID!): User
 
-    login(user: String): User
+    login(user: UserLogin!): String!
 
     editUser(id:  ID!): User
   }
@@ -66,6 +68,11 @@ const typeDefs = gql`
     BANKROTT
     INTERESSENT
     ABGELEHNT
-  } ` ;
+  } 
+  
+  input UserLogin {
+    username: String!
+    password: String!
+  }` ;
 
 module.exports = typeDefs;

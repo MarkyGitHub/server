@@ -2,6 +2,7 @@ require('dotenv').config();
 // Server declarations
 const { ApolloServer, gql } = require('apollo-server');
 const { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginInlineTrace } = require('apollo-server-core');
+//const { GraphQLJSON, GraphQLJSONObject } = require('graphql-type-json');
 
 // Rest data source delarations
 const { RESTDataSource } = require("apollo-datasource-rest");
@@ -14,7 +15,7 @@ const LoginAPI = require("./services/rest/LoginAPI");
 const typeDefs = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
 
-const logger = require('./log/indexAlt');
+const logger = require('./log/index');
 
 /*  const aPlugin = {
   // Fires whenever a GraphQL request is received from a client.
@@ -50,7 +51,7 @@ const dbConnection = () => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  dataSources: () => {    
+  dataSources: () => {
     return {
       //customerAPI: new CustomerAPI(restURL),     
       loginAPI: new LoginAPI(process.env.pwabackend_local),
@@ -59,16 +60,19 @@ const server = new ApolloServer({
     }
   },
   context: async () => {
-    return {  }
+    return {}
   },
   logger,
   introspection: true,
   // csrfPrevention: true,
-  // cache: 'bounded',
-  /* cors: {
-    origin: process.env.yourOrigin,
+  cache: 'bounded', 
+  cors: {
+   // origin: process.env.yourOrigin,
     credentials: true
-  }, */
+  },
+  headers: { 
+    "Content-Type": "application/json", 
+  },
   /*  apollo: {
      key: process.env.APOLLO_KEY,
    }, */
@@ -113,7 +117,7 @@ const server = new ApolloServer({
       },
     },
     ApolloServerPluginLandingPageLocalDefault({ embed: true })]
-    //ApolloServerPluginInlineTrace()],
+  //ApolloServerPluginInlineTrace()],
 
 });
 
@@ -122,7 +126,7 @@ const server = new ApolloServer({
 if (process.env.NODE_ENV !== 'test') {
   server.listen().then(() => {
     console.log(`Server is running at http://localhost:4000`);
-    //logger.info('verbose', `Server is running at http://localhost:4000`);
+    //logger.log('verbose', `Server is running at http://localhost:4000`);
   });
 }
 
