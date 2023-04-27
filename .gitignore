@@ -1,0 +1,3 @@
+node_modules
+/log/combined.log
+/log/error.log

@@ -2,8 +2,15 @@ const resolvers = {
   Query: {
     getPing: async (parent, args, context, info) => {
       return await context.dataSources.loginAPI.getPing()
-    }
-  }
+    },
+    postLogin: async (parameter, { data }, { context }, info) => {
+      return context.dataSources.loginAPI.postLogin();
+    },
+    
+    /* postLogin: async (parent, args, context, info) => {
+      return await context.dataSources.loginAPI.postLogin()
+    }, */
+  },
 
 /*const resolvers = {
   Query: {

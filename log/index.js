@@ -14,11 +14,11 @@ const logger = createLogger({
   ),
   transports: [
     new transports.File({
-      filename: './log/error.log',
+      filename: './error.log',
       level: 'error',
     }),
     new transports.File({
-      filename: './log/combined.log',
+      filename: './combined.log',
       level: 'verbose',
     }),
     new transports.Console(),
