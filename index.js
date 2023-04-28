@@ -15,7 +15,7 @@ const LoginAPI = require("./services/rest/LoginAPI");
 const typeDefs = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
 
-const logger = require('./log/index');
+const logger = require('./log/indexAlt');
 
 /*  const aPlugin = {
   // Fires whenever a GraphQL request is received from a client.
@@ -54,7 +54,7 @@ const server = new ApolloServer({
   dataSources: () => {
     return {
       //customerAPI: new CustomerAPI(restURL),     
-      loginAPI: new LoginAPI(process.env.pwabackend_local),
+      loginAPI: new LoginAPI(process.env.pwabackend_dev),
       // timeRecordingAPI: new TimeRecordingAPI(restURL),
       // userAPI: new UserAPI(restURL), 
     }
@@ -67,7 +67,7 @@ const server = new ApolloServer({
   // csrfPrevention: true,
   cache: 'bounded', 
   cors: {
-   // origin: process.env.yourOrigin,
+    origin: process.env.yourOrigin,
     credentials: true
   },
   headers: { 

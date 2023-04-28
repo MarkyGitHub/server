@@ -3,8 +3,8 @@ const resolvers = {
     getPing: async (parent, args, context, info) => {
       return await context.dataSources.loginAPI.getPing()
     },
-    postLogin: async (parameter, { data }, { context }, info) => {
-      return context.dataSources.loginAPI.postLogin();
+    getPing: async (parent, args, context, info) => {   
+      return context.dataSources.loginAPI.postLogin(args);
     },
     
     /* postLogin: async (parent, args, context, info) => {
