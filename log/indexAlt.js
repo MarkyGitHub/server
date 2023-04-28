@@ -2,11 +2,11 @@ const winston = require('winston');
 
 let transports = [
   new winston.transports.File({
-    filename: 'error.log',
+    filename: './error.log',
     level: 'error',
   }),
   new winston.transports.File({
-    filename: 'combined.log',
+    filename: './combined.log',
     level: 'verbose',
   }),
 ];

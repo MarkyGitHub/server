@@ -16,7 +16,7 @@ class LoginAPI extends RESTDataSource {
     willSendRequest(request) {
         request.headers.set('Content-Type', 'application/json');
         request.headers.set('Access-Control-Allow-Origin', '*');
-        request.headers.set('Authorization', this.$token);
+        //request.headers.set('Authorization', this.$token);
     }
 
     // GET
