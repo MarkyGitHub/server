@@ -1,12 +1,13 @@
+const { UserInputError } = require("apollo-server-express");
+
 const resolvers = {
   Query: {
     getPing: async (parent, args, context, info) => {
-      return await context.dataSources.loginAPI.getPing()
+      return await context.dataSources.loginAPI.getPing();
     },
-    getPing: async (parent, args, context, info) => {   
-      return context.dataSources.loginAPI.postLogin(args);
-    },
-    
+    postLogin: async (parent, args, context, info) => {
+      return context.dataSources.loginAPI.postLogin();
+    }
     /* postLogin: async (parent, args, context, info) => {
       return await context.dataSources.loginAPI.postLogin()
     }, */

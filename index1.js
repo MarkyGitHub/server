@@ -79,11 +79,6 @@ async function startApolloServer() {
     return { server, app };
   }
 
-
-
-
-
-
 // Set up Apollo Server
 const server = new ApolloServer({
     typeDefs,
