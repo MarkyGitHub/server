@@ -3,9 +3,11 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
 
+scalar Date
+
   type Query {   
     getPing:String
-    postLogin(userdata: UserLogin!):String
+    postLogin:String
   }
 
   type Mutation {
@@ -43,14 +45,24 @@ const typeDefs = gql`
     stadt: String        
   }
 
-  scalar Date
-
   type LieferAngaben {
     abweichendeOrtsbez: String
     ablageort: String
     anzahlParteien: Int
     wunschdatum: Date
     anmerkung: String
+  }
+
+  input UserUpdate {
+    token: String!
+    message: String
+    username: String!
+    password: String!
+  }
+
+  input UserLogin {
+    username: String!
+    password: String!
   }
 
   enum Salutation {
@@ -68,11 +80,18 @@ const typeDefs = gql`
     BANKROTT
     INTERESSENT
     ABGELEHNT
-  } 
+  }
   
-  input UserLogin {
-    username: String!
-    password: String!
+  type Mutation {
+    # if false, signup failed -- check errors
+    editCustomer(id: [ID]!): User!
+
+    # if false, cancellation failed -- check errors
+    deleteCustomer(id: ID!): User
+
+    #login(user: UserLogin!): String!
+
+    #editUser(id:  ID!): User
   }` ;
 
 module.exports = typeDefs;

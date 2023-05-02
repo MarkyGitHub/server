@@ -1,37 +1,42 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 
-//$token: String;
 const $userLogin = {
     $username: "075502",
     $password: "mgf"
 }
 
 class LoginAPI extends RESTDataSource {
+
     constructor($restURL) {
         super();
         this.baseURL = $restURL;
-        // this.$token = $aToken;
     }
 
     willSendRequest(request) {
         request.headers.set('Content-Type', 'application/json');
-        request.headers.set('Access-Control-Allow-Origin', '*');
+        request.headers.set('Accept-Encoding', 'gzip');
+        //request.headers.set('Access-Control-Allow-Origin', '*');
         //request.headers.set('Authorization', this.$token);
     }
 
     // GET
     async getPing() {
-        return this.get(`${this.baseURL}webresources/login`);
+        const data = await this.get(`${this.baseURL}webresources/login`);
+        return data;
     }
 
     // POST
-    async postLogin(userdata) {
-        const data = this.post(`${this.baseURL}webresources/login`, // path
-            userdata, // request body
+    async postLogin() {
+        try {
+            const data = this.post(`${this.baseURL}webresources/login`, // path
+            {  "username": "075502", "password": "mgf" },
+            $userLogin, // request body
         );
-        //const data=  this.post(`${this.baseURL}webresources/login${encodeURIComponent($username/$password)}`);
-        //this.$token = data.getToken();
         return data;
+        } catch (error) {
+            console.log(error);
+        }
+       
     }
 }
 
