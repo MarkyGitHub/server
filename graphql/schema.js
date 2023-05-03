@@ -1,13 +1,13 @@
 const { gql } = require('apollo-server');
-//const { GraphQLJSON, GraphQLJSONObject } = require('graphql-type-json');
 
 const typeDefs = gql`
 
 scalar Date
+scalar JSONObject
 
   type Query {   
     getPing:String
-    postLogin:String
+    postLogin:JSONObject
   }
 
   type Mutation {
@@ -40,6 +40,12 @@ scalar Date
   }
 
   type UserAddress {
+    street: String
+    plz: String
+    stadt: String        
+  }
+
+    type UserAddress {
     street: String
     plz: String
     stadt: String        
