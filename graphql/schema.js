@@ -5,73 +5,7 @@ const typeDefs = gql`
 scalar Date
 scalar JSONObject
 
-  type Query {   
-    getPing:String
-    postLogin:JSONObject
-  }
-
-  type Mutation {
-    # if false, signup failed -- check errors
-    editCustomer(id: [ID]!): User!
-
-    # if false, cancellation failed -- check errors
-    deleteCustomer(id: ID!): User
-
-    login(user: UserLogin!): String!
-
-    editUser(id:  ID!): User
-  }
-
-  input UserUpdate {
-    token: String!
-    message: String
-    username: String!
-    password: String!
-  }
-
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    salutation: Salutation
-    geburtstag: Date
-    telefon: String!
-    token: String
-  }
-
-  type UserAddress {
-    street: String
-    plz: String
-    stadt: String        
-  }
-
-    type UserAddress {
-    street: String
-    plz: String
-    stadt: String        
-  }
-
-  type LieferAngaben {
-    abweichendeOrtsbez: String
-    ablageort: String
-    anzahlParteien: Int
-    wunschdatum: Date
-    anmerkung: String
-  }
-
-  input UserUpdate {
-    token: String!
-    message: String
-    username: String!
-    password: String!
-  }
-
-  input UserLogin {
-    username: String!
-    password: String!
-  }
-
-  enum Salutation {
+enum Salutation {
     Herr
     Frau
     Familie
@@ -87,17 +21,106 @@ scalar JSONObject
     INTERESSENT
     ABGELEHNT
   }
+
+  type User {
+    id: ID!
+    name: String!
+    firstName: String
+    salutation: Salutation
+    status: Status
+    username:String
+    roles:[String] 
+    companyName: String
+    locked: Boolean    
+  }
+
+  type TimeRecording {
+    id: ID!
+    description: String
+    startTime: Date!
+    endTime: Date!
+    workDate: Date!
+    user: User
+  }
+
+  type PromoSample {
+  id: ID!
+  birthDate: Date!
+  callingTime: String
+  city: String
+  cityInfor: String
+  code: String
+  companyName: String
+  country: String
+  deliveryDate: Date!
+  email: String
+  firstName: String
+  name: String
+  phone: String
+  postCode: String
+  reson: String
+  remark: String
+  salutation: Salutation
+  streetAddrees: String
+  tenants: String
+  user: User
+  }
+
+  type LieferAngaben {
+    abweichendeOrtsbez: String
+    ablageort: String
+    anzahlParteien: Int
+    wunschdatum: Date
+    anmerkung: String
+  }
+
+  type UserAddress {
+    street: String
+    postCode: String
+    city: String        
+  }
+
+  input EntriesTimeRecording {
+        description: String
+        startTime: Date
+        endTime: Date
+        workDate: Date  
+      }
+
+  input UserUpdate {
+    token: String!
+    message: String
+    username: String!
+    password: String!
+  }
+
+  input UserLogin {
+    username: String!
+    password: String!
+  }
+
+  input UserUpdate {
+    token: String!
+    message: String
+    username: String!
+    password: String!
+    email: String!
+    token: String
+  }
   
+  type Query {   
+    getPing:String
+    postLogin:JSONObject
+  }
+
   type Mutation {
-    # if false, signup failed -- check errors
-    editCustomer(id: [ID]!): User!
+   # Save, edit, delete TimeRecordings
+  postCreate(entities: [EntriesTimeRecording]!):[TimeRecording]!
+   newEdit(id: [ID]!, entity: EntriesTimeRecording!):TimeRecording!
+  deleteRemove(id: EntriesTimeRecording!):TimeRecording!
 
-    # if false, cancellation failed -- check errors
-    deleteCustomer(id: ID!): User
+   # postCreate(type:[EntriesTimeRecording]!):[TimeRecording]!
+  }
 
-    #login(user: UserLogin!): String!
-
-    #editUser(id:  ID!): User
-  }` ;
-
+  ` ;
 module.exports = typeDefs;

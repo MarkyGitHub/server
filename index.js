@@ -75,10 +75,11 @@ const server = new ApolloServer({
   logger,
   dataSources: () => {
     return {
-      //customerAPI: new CustomerAPI(restURL),     
-      loginAPI: new LoginAPI(process.env.pwabackend_local),
-      // timeRecordingAPI: new TimeRecordingAPI(restURL),
-      // userAPI: new UserAPI(restURL), 
+      restURL: process.env.pwabackend_local,
+      customerAPI: new CustomerAPI(restURL),     
+      loginAPI: new LoginAPI(restURL),
+      timeRecordingAPI: new TimeRecordingAPI(restURL),
+      userAPI: new UserAPI(restURL), 
     }
   },
   context: async () => {
