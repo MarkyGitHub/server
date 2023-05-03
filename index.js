@@ -67,7 +67,6 @@ const logger = winston.createLogger({
 });
 
 const url = process.env.yourOrigin
-//process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 1
 
 // Set up Apollo Server
 const server = new ApolloServer({
@@ -83,7 +82,7 @@ const server = new ApolloServer({
     }
   },
   context: async () => {
-    return {logger}
+    return { logger }
   },
   introspection: true,
   csrfPrevention: true,
@@ -91,53 +90,15 @@ const server = new ApolloServer({
   cors: {
     origin: [url, "https://studio.apollographql.com"],
     credentials: true
-  },     
- 
-  /*  apollo: {
-     key: process.env.APOLLO_KEY,
-   }, */
-  /* context: ({ req }) => {
-     // Note: This example uses the `req` argument to access headers,
-     // but the arguments received by `context` vary by integration.
-     // This means they vary for Express, Koa, Lambda, etc.
-     //
-     // To find out the correct arguments for a specific integration,
-     // see https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
- 
-     // Get the user token from the headers.
-     const token = req.headers.authorization || '';
- 
-     // Try to retrieve a user with the token
-     const user = getUser();
- 
-     // Add the user to the context
-     return { user };
-   }, */
+  },
   plugins: [
-   // aPlugin,
     {
-      /* async requestDidStart(requestContext) {
-        console.log('Request started ... Query is:\n' +
-          requestContext.request.query);
-        return {
-          // Fires whenever Apollo Server will parse a GraphQL
-          // request to create its associated document AST.
-          async parsingDidStart(requestContext) {
-            console.log('Parsing started....');
-          },
-          // Fires whenever Apollo Server will validate a
-          // request's document AST against your GraphQL schema.
-          async validationDidStart(requestContext) {
-            console.log('Validation started ...');
-          },
-        }
-      }, */
       async serverWillStart() {
         console.log('Server Bry-IT starting up....');
       },
     },
-    ApolloServerPluginLandingPageLocalDefault({ embed: true })]
-  //ApolloServerPluginInlineTrace()],
+    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+    ApolloServerPluginInlineTrace()],
 
 });
 

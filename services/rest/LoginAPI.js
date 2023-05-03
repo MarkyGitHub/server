@@ -1,10 +1,5 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 
-const $userLogin = {
-    $username: "075502",
-    $password: "mgf"
-}
-
 class LoginAPI extends RESTDataSource {
 
     constructor($restURL) {
@@ -15,8 +10,6 @@ class LoginAPI extends RESTDataSource {
     willSendRequest(request) {
         request.headers.set('Content-Type', 'application/json');
         request.headers.set('Accept-Encoding', 'gzip');
-        //request.headers.set('Access-Control-Allow-Origin', '*');
-        //request.headers.set('Authorization', this.$token);
     }
 
     // GET
@@ -29,14 +22,12 @@ class LoginAPI extends RESTDataSource {
     async postLogin() {
         try {
             const data = this.post(`${this.baseURL}webresources/login`, // path
-            {  "username": "075502", "password": "mgf" },
-            $userLogin, // request body
+            {  "username": "marek", "password": "mgf" }, // request body
         );
         return data;
         } catch (error) {
             console.log(error);
-        }
-       
+        }       
     }
 }
 
