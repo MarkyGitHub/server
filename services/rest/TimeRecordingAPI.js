@@ -10,32 +10,33 @@ class TimeRecordingAPI extends RESTDataSource {
     willSendRequest(request) {
         request.headers.set('Content-Type', 'application/json');
         request.headers.set('Accept-Encoding', 'gzip');
+        request.headers.set('Authorization', 'Basic ' + userToken);
     }
 
     // POST
-    async postCreate(id, entity) {
-        const data = this.post(`webresources/timerecording/${encodeURIComponent(a)}`, // path
-            { entity }, // request body
+    async postCreate(entities) {
+        const data = this.post(`webresources/timerecording`, // path
+            { entities }, // request body
         );
     }
 
     // PUT
     async newEdit(id, entity) {
-        return this.put(`webresources/timerecording/${encodeURIComponent(id)}`, // path
-        entity, // request body
+        const data = this.put(`webresources/timerecording/${encodeURIComponent(id)}`, // path
+            entity, // request body
         );
     }
 
     // DELETE
     async deleteRemove(id) {
-        return this.delete(
+        const data = this.delete(
             `webresources/timerecording/${encodeURIComponent(id)}`, // path
         );
     }
 
     // GET
     async getFind(id) {
-        const data = await  this.get(
+        const data = await this.get(
             `webresources/timerecording/${encodeURIComponent(id)}` // path
         );
         return data;
@@ -43,8 +44,7 @@ class TimeRecordingAPI extends RESTDataSource {
 
     // GET
     async getFindByUser(user) {
-        const data = await  this.get(
-            `webresources/timerecording/` // path
+        const data = await this.get(`webresources/timerecording/` // path
         );
         return data;
     }
@@ -59,8 +59,7 @@ class TimeRecordingAPI extends RESTDataSource {
 
     // GET
     async getCount() {
-        const data = await this.get(
-            `webresources/timerecording/count` // path
+        const data = await this.get(`webresources/timerecording/count` // path
         );
         return data;
     }

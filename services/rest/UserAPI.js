@@ -1,44 +1,39 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 
 class UserAPI extends RESTDataSource {
+
     constructor($restURL) {
         super();
         this.baseURL = $restURL;
     }
 
-    // PUT
-    async newEdit(id) {
-        return this.put(
-            `webresources/user/${encodeURIComponent(id)}`, // path
-        );
-    }
-
-    // GET
-    async getFind(id) {
-        return this.get(
-            `webresources/user/${encodeURIComponent(id)}` // path
-        );
-    }
-
     // GET
     async getFind() {
-        return this.get(
-            `webresources/user/${encodeURIComponent(id)}` // path
+        const data = await this.get(
+            `webresources/user/userName` // path
         );
+        return data;
     }
 
-    // GET
-    async getCount() {
-        return this.get(
-            `webresources/user/count` // path
+    // PUT
+    async newEdit(id, entity) {
+        return this.put(`webresources/user/${encodeURIComponent(id)}`, // path
+            entity, // request body
         );
     }
 
     // GET
     async getUserData() {
-        return this.get(
-            `webresources/user/userData` // path
+        const data = await this.get(`webresources/user/userData` // path
         );
+        return data;
+    }
+
+    // GET
+    async getCount() {
+        const data = await this.get(`webresources/user/count` // path
+        );
+        return data;
     }
 
 }
