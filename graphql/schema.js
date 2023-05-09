@@ -1,4 +1,4 @@
-const { gql } = require('apollo-server');
+const { gql } = require( 'apollo-server' );
 
 const typeDefs = gql`
 
@@ -49,7 +49,7 @@ enum Salutation {
   callingTime: String
   city: String
   cityInfor: String
-  code: String
+          code: String
   companyName: String
   country: String
   deliveryDate: Date!
@@ -64,6 +64,23 @@ enum Salutation {
   streetAddrees: String
   tenants: String
   user: User
+  }
+
+  input PromoSampleInput {
+        salutation: Salutation
+        firstName: String
+        name: String
+        companyName: String
+        phone: String
+        email: String
+        streetAddress: String
+        postCode: String
+        city: String
+        cityInfo: String
+        birthDate: Date
+        tenants: Int
+        remark: String
+        deliveryDate: Date
   }
 
   type LieferAngaben {
@@ -94,7 +111,7 @@ enum Salutation {
     password: String!
   }
 
-  input UserLogin {
+  input UserLoginRequest {
     username: String!
     password: String!
   }
@@ -108,19 +125,41 @@ enum Salutation {
     token: String
   }
   
+  input UserInput {   
+    name: String!
+    firstName: String
+    salutation: Salutation
+    status: Status
+    username:String
+    role:String
+    companyName: String     
+  }
+
   type Query {   
     getPing:String
-    postLogin:JSONObject
+    postLogin(userLoginRequest: UserLoginRequest!):JSONObject
   }
 
   type Mutation {
    # Save, edit, delete TimeRecordings
-  postCreate(entities: [EntriesTimeRecording]!):[TimeRecording]!
-   newEdit(id: [ID]!, entity: EntriesTimeRecording!):TimeRecording!
-  deleteRemove(id: EntriesTimeRecording!):TimeRecording!
+  postCreateTimeRecordings(entities: [EntriesTimeRecording]!):[TimeRecording]!
+  editTimeRecording(id: [ID]!, entity: EntriesTimeRecording!):TimeRecording!
+  deleteTimeRecording(id: EntriesTimeRecording!):TimeRecording!
+
+    # Save, edit, delete PromoSamples
+    postCreatePromoSamples(entities: [PromoSampleInput]!):[PromoSample]!
+    editPromoSample(id: [ID]!, entity: PromoSampleInput!):PromoSample!
+    deletePromoSample(id: PromoSampleInput!):PromoSample!
+
+ # Edit User
+  editUser(id: [ID]!, entity: UserInput!):User!
 
    # postCreate(type:[EntriesTimeRecording]!):[TimeRecording]!
+  # postLogin(userLoginRequest: UserLoginRequest!):JSONObject
   }
 
   ` ;
+
+
+
 module.exports = typeDefs;
