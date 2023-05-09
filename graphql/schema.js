@@ -49,7 +49,7 @@ enum Salutation {
   callingTime: String
   city: String
   cityInfor: String
-          code: String
+  code: String
   companyName: String
   country: String
   deliveryDate: Date!
@@ -137,7 +137,7 @@ enum Salutation {
 
   type Query {   
     getPing:String
-    postLogin(userLoginRequest: UserLoginRequest!):JSONObject
+    postLogin( username: String!, password: String!):JSONObject
   }
 
   type Mutation {
