@@ -22,13 +22,13 @@ class LoginAPI extends RESTDataSource
     }
 
     // POST
-    async postLogin ( userLoginRequest )
+    async postLogin ( username, password )
     {
         try
         {
             const data = this.post( `${ this.baseURL }webresources/login`, // path
                 // { userLoginRequest } // request body
-                { "username": "marek", "password": "mgf" }, // request body
+                { "username": username, "password": password }, // request body
             );
             return data;
         } catch ( error )
