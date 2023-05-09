@@ -1,15 +1,19 @@
-const { UserInputError } = require("apollo-server-express");
+const { UserInputError } = require( "apollo-server-express" );
+const { Logger } = require( "winston" );
+
 
 const resolvers = {
   Query: {
     /**
      * Queries from Login API - Pwa backend
      */
-    getPing: async (parent, args, context, info) => {
+    getPing: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.loginAPI.getPing();
     },
-    postLogin: async (parent, args, context, info) => {
-      return context.dataSources.loginAPI.postLogin();
+    postLogin: ( parent, userLoginRequest, context, info ) =>
+    {
+      return context.dataSources.loginAPI.postLogin( { userLoginRequest } );
     },
     /**
      * Queries from TimeRecording API - Pwa backend
