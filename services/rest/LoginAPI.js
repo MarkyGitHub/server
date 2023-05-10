@@ -26,8 +26,7 @@ class LoginAPI extends RESTDataSource
     {
         try
         {
-            const data = this.post( `${ this.baseURL }webresources/login`, // path
-                // { userLoginRequest } // request body
+            const data = this.post( `${ this.baseURL }webresources/login`, // path               
                 { "username": username, "password": password }, // request body
             );
             return data;
