@@ -17,46 +17,57 @@ const resolvers = {
     },
     /**
      * Queries from TimeRecording API - Pwa backend
-     *
-    getFind: async (parent, args, context, info) => {
-      return await context.dataSources.timeRecordingAPI.getFind();
+     */
+    getFind: async ( parent, { id }, context, info ) =>
+    {
+      return await context.dataSources.timeRecordingAPI.getFind( id );
     },
-    getFindByUser: async (parent, args, context, info) => {
+    getFindByUser: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.timeRecordingAPI.getFindByUser();
     },
-    getFindRange: async (parent, args, context, info) => {
-      return await context.dataSources.timeRecordingAPI.getFindRange();
+    getFindRange: async ( parent, { from, to }, context, info ) =>
+    {
+      return await context.dataSources.timeRecordingAPI.getFindRange( from, to );
     },
-    getCount: async (parent, args, context, info) => {
+    getCount: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.timeRecordingAPI.getCount();
     },
     /**
      * Queries from User API - Pwa backend
-     *
-    getFind: async (parent, args, context, info) => {
-      return await context.dataSources.userAPI.getFind();
+     */
+    getFindUser: async ( parent, { id }, context, info ) =>
+    {
+      return await context.dataSources.userAPI.getFind( id );
     },
-    getUserData: async (parent, args, context, info) => {
+    getUserData: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.userAPI.getUserData();
     },
-    getCount: async (parent, args, context, info) => {
+    getUserCount: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.userAPI.getCount();
     },
     /**
      * Queries from Customer (PromoSample) API - Pwa backend
-     *
-    getFind: async (parent, args, context, info) => {
-      return await context.dataSources.customerAPI.getFind();
+     */
+    getFindCustomer: async ( parent, { id }, context, info ) =>
+    {
+      return await context.dataSources.customerAPI.getFind( id );
     },
-    getFindByUser: async (parent, args, context, info) => {
+    getFindCustomerByUser: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.customerAPI.getFindByUser();
     },
-    getFindRange: async (parent, args, context, info) => {
-      return await context.dataSources.customerAPI.getFindRange();
+    getFindCustomerRange: async ( parent, { from, to }, context, info ) =>
+    {
+      return await context.dataSources.customerAPI.getFindRange( from, to );
     },
-    getCount: async (parent, args, context, info) => {
+    getCustomerCount: async ( parent, args, context, info ) =>
+    {
       return await context.dataSources.customerAPI.getCount();
-    }*/
-  },
+    }
+  }
 };
 module.exports = resolvers;

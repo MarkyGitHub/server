@@ -2,7 +2,7 @@ require( 'dotenv' ).config();
 // Server declarations
 const { ApolloServer, gql } = require( 'apollo-server' );
 const { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginInlineTrace } = require( 'apollo-server-core' );
-//const { GraphQLJSON, GraphQLJSONObject } = require('graphql-type-json');
+const { GraphQLJSON, GraphQLJSONObject } = require( 'graphql-type-json' );
 
 // Rest data source delarations
 const { RESTDataSource } = require( "apollo-datasource-rest" );
