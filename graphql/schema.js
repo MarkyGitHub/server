@@ -6,6 +6,22 @@ const typeDefs = gql`
 scalar Date
 scalar JSONObject
 
+type Query {
+	getPing: String
+	postLogin( username: String!, password: String!):JSONObject
+	getFind(id: ID!): JSONObject
+	getFindByUser: JSONObject   
+	getFindRange(from: Int, to: Int): JSONObject    
+	getCount: Int
+	getFindUser(id: ID!) : JSONObject
+	getUserData: JSONObject
+	getUserCount: Int
+	getFindCustomer: JSONObject
+	getFindCustomerByUser: JSONObject
+	getFindCustomerRange(from: Int, to: Int ): JSONObject 
+	getCustomerCount: Int
+}
+
 enum Salutation {
 	Herr
 	Frau
@@ -133,22 +149,6 @@ input UserInput {
 	username: String
 	role: String
 	companyName: String     
-}
-
-type Query {
-	getPing: String
-	postLogin(username: String!, password: String!): JSONObject
-	getFind(id: ID!): JSONObject
-	getFindByUser: JSONObject   
-	getFindRange(from: Int, to: Int): JSONObject    
-	getCount: Int
-	getFindUser(id: ID!) : JSONObject
-	getUserData: JSONObject
-	getUserCount: Int
-	getFindCustomer: JSONObject
-	getFindCustomerByUser: JSONObject
-	getFindCustomerRange(from: Int, to: Int ): JSONObject 
-	getCustomerCount: Int
 }
 
 type Mutation {
