@@ -11,9 +11,9 @@ const resolvers = {
     {
       return await context.dataSources.loginAPI.getPing();
     },
-    postLogin: ( parent, { username, password }, context, info ) =>
+    postLogin: async ( parent, { username, password }, context, info ) =>
     {
-      return context.dataSources.loginAPI.postLogin( { username, password } );
+      return context.dataSources.loginAPI.postLogin( username, password );
     },
     /**
      * Queries from TimeRecording API - Pwa backend

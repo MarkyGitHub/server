@@ -21,28 +21,33 @@ const { format, createLogger, transports } = require( "winston" );
 const { combine, timestamp, label, printf, prettyPrint } = format;
 const CATEGORY = "VertriebsApp format";
 
-/* const aPlugin = {
+const myPlugin = {
   // Fires whenever a GraphQL request is received from a client.
-  async requestDidStart(requestContext) {
-    winston.log('Request started! Query:\n' +
-      requestContext.request.query);
-
+  async requestDidStart ( requestContext )
+  {
     return {
       // Fires whenever Apollo Server will parse a GraphQL
       // request to create its associated document AST.
-      async parsingDidStart(requestContext) {
-        winston.log('Parsing started!');
+      async parsingDidStart ( requestContext )
+      {
+        console.log( 'Parsing started!' );
       },
 
       // Fires whenever Apollo Server will validate a
       // request's document AST against your GraphQL schema.
-      async validationDidStart(requestContext) {
-        console.log('Validation started!');
+      async validationDidStart ( requestContext )
+      {
+        console.log( 'Validation started!' );
       },
+      // Fires whenever Apollo Server will have errors
+      async didEncounterErrors ( errors )
+      {
+        console.log( 'Request has errors! Errors:\n' + errors );
 
-    }
+      }
+    };
   },
-}; */
+};
 
 const logger = winston.createLogger( {
   level: 'info',
@@ -102,7 +107,7 @@ const server = new ApolloServer( {
       },
     },
     ApolloServerPluginLandingPageLocalDefault( { embed: true } ),
-    ApolloServerPluginInlineTrace() ],
+    ApolloServerPluginInlineTrace(), myPlugin ]
 
 } );
 

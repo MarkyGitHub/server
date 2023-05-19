@@ -3,10 +3,20 @@ const { RESTDataSource } = require( 'apollo-datasource-rest' );
 class UserAPI extends RESTDataSource
 {
 
+    //$jwt;
+
     constructor ( $restURL )
     {
         super();
         this.baseURL = $restURL;
+        //  this.$jwt = $jwtToken;
+    }
+
+    willSendRequest ( request )
+    {
+        request.headers.set( 'Content-Type', 'application/json' );
+        request.headers.set( 'Accept-Encoding', 'gzip' );
+        //  request.headers.set( 'Authorization', 'Basic ' + this.token );
     }
 
     // GET
