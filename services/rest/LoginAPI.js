@@ -4,8 +4,6 @@ const { GraphQLJSON, GraphQLJSONObject } = require( 'graphql-type-json' );
 class LoginAPI extends RESTDataSource
 {
 
-    // $jwt;
-
     constructor ( $restURL )
     {
         super();
@@ -33,36 +31,19 @@ class LoginAPI extends RESTDataSource
         try
         {
             const data = await this.post( `${ this.baseURL }webresources/login`, // path
-                //{ "username": "marek", "password": "mgf" },
+                //  { "username": "marek", "password": "mgf" },
                 { "username": username, "password": password }, // request body
             );
-            /*   try
-              {
-                  this.$jwt = JSON.parse( data, arguments =>  defaultReviver() );
-              } catch ( e )
-              {
-                  console.log( e );
-                  return null;
-              } */
             return data;
         } catch ( error )
         {
+            if ( error.extensions?.code === 'ECONNREFUSED' )
+            {
+                console.log( 'Request has errors! Errors:\n ECONNREFUSED' + error );
+            }
             console.log( error );
-
         }
-
     }
-
-    /* defaultReviver ( key, value )
-    {
-        if ( key === 'jwtToken' )
-        {
-            return value;
-        }
-
-        if ( typeof value === 'undefined' ) { return null; }
-        if ( reviver !== undefined ) { reviver(); }
-    }; */
 }
 
 module.exports = LoginAPI;
