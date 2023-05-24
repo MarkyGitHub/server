@@ -21,6 +21,13 @@ const { format, createLogger, transports } = require( "winston" );
 const { combine, timestamp, label, printf, prettyPrint } = format;
 const CATEGORY = "VertriebsApp format";
 
+// Error handling
+const { ApolloServerErrorCode } = require( '@apollo/server/errors' );
+const { GraphQLError } = require( 'graphql' );
+
+// Security, Authentication, CORS, etc.
+
+
 const myPlugin = {
   // Fires whenever a GraphQL request is received from a client.
   async requestDidStart ( requestContext )
@@ -42,8 +49,18 @@ const myPlugin = {
       // Fires whenever Apollo Server will have errors
       async didEncounterErrors ( errors )
       {
-        console.log( 'Request has errors! Errors:\n' + errors );
+        console.log( 'Request has errors! Errors:\n' + errors.extensions );
+        console.log( 'Request has errors! Errors:\n' + errors.extensions.code );
+        if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
+        {
+          //GraphQLError.extensions.code
+          console.log( 'Request has internal server errors! Errors:\n' + errors );
+        } else if ( errors.extensions?.code === 'ECONNREFUSED' )
+        {
+          console.log( 'Request has errors! Errors:\n ECONNREFUSED' + errors );
 
+        }
+        console.log( 'Request has errors! Errors:\n' + errors );
       }
     };
   },
@@ -71,14 +88,13 @@ const logger = winston.createLogger( {
   ],
 } );
 
-const url = process.env.yourOrigin
+const aOrigin = process.env.yourOrigin
 const restURL = process.env.pwabackend_local
 
 // Set up Apollo Server
 const server = new ApolloServer( {
   typeDefs,
   resolvers,
-  logger,
   dataSources: () =>
   {
     return {
@@ -90,13 +106,15 @@ const server = new ApolloServer( {
   },
   context: async () =>
   {
-    return { logger }
+    return {
+      logger,
+    };
   },
   introspection: true,
   csrfPrevention: true,
   cache: 'bounded',
   cors: {
-    origin: [ url, "https://studio.apollographql.com" ],
+    origin: [ aOrigin, "https://studio.apollographql.com", 'http://localhost:3000', 'http://v50gf.ibry-it.local:4000/' ],
     credentials: true
   },
   plugins: [
@@ -105,11 +123,32 @@ const server = new ApolloServer( {
       {
         console.log( 'Server Bry-IT starting up....' );
       },
+      /* async requestDidStart ()
+      {
+        // token is properly inferred as a string
+        console.log( 'Server Bry-IT stared!' );
+      }, */
     },
     ApolloServerPluginLandingPageLocalDefault( { embed: true } ),
-    ApolloServerPluginInlineTrace(), myPlugin ]
-
+    ApolloServerPluginInlineTrace(), myPlugin
+  ]
 } );
+
+/* const { url } = await startStandaloneServer( server, {
+  context: async () =>
+  {
+    const customerAPI = new CustomerAPI( restURL );
+    const loginAPI = new LoginAPI( restURL );
+    const timeRecordingAPI = new TimeRecordingAPI( restURL );
+    const userAPI = new UserAPI( restURL );
+    return {
+      dataSources: {
+        customerAPI, loginAPI, timeRecordingAPI, userAPI
+      },
+      logger,
+    };
+  },
+} ); */
 
 // Start our server if we're not in a test env.
 // if we're in a test env, we'll manually start it in a test
@@ -117,8 +156,8 @@ if ( process.env.NODE_ENV !== 'test' )
 {
   server.listen().then( () =>
   {
-    console.log( `Server is running at ` + url );
-    logger.log( 'verbose', `Server is running at ` + url );
+    console.log( `Server is running at ` + aOrigin );
+    logger.log( 'verbose', `Server is running at ` + aOrigin );
   } );
 }
 
