@@ -11,9 +11,16 @@ const resolvers = {
     {
       return await context.dataSources.loginAPI.getPing();
     },
-    postLogin: async ( parent, { username, password }, context, info ) =>
-    {
-      return context.dataSources.loginAPI.postLogin( username, password );
+    postLogin: async ( parent, { username, password }, context, info ) => {
+      const data = await context.dataSources.loginAPI.postLogin(username, password);
+      if (data.jwtToken) {
+        context.res.cookie('jwtToken', data.jwtToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 1000 * 60 * 60 * 24
+        });
+      }
+      return data;
     },
     /**
      * Queries from TimeRecording API - Pwa backend
@@ -68,6 +75,40 @@ const resolvers = {
     {
       return await context.dataSources.customerAPI.getCount();
     }
+  },
+  
+  Mutation: {
+    /**
+     * 
+     */
+    postCreatePromoSamples: async (parent, {entities}, context, info) => {
+      // Assuming you have a method in your customerAPI that handles this
+      return await context.dataSources.customerAPI.postCreatePromoSamples(entities);
+    }, 
+    /*editPromoSample: async (parent, {id, entity}, context, info) => {
+      return await context.dataSources.customerAPI.editPromoSample(id, entity);
+    },
+    deletePromoSample: async (parent, {id}, context, info) => {
+      return await context.dataSources.customerAPI.deletePromoSample(id);
+    },  }*/
+    postCreatePromoterActivityHA: async (parent, {entities}, context, info) => {
+      // Assuming you have a method in your promoterActivityHAAPI that handles this
+      return await context.dataSources.promoterActivityHAAPI.postCreatePromoterActivityHA(entities);
+    }, 
+    postCreatePromoterDriveActivity: async (parent, {entities}, context, info) => {
+      // Assuming you have a method in your promoterActivityDriveAPI that handles this
+      return await context.dataSources.promoterActivityDriveAPI.postCreatePromoterActivityDrive(entities);
+    }, 
+    postCreatePromoterActivityCTADistribute: async (parent, {entities}, context, info) => {
+      // Assuming you have a method in your promoterActivityDriveAPI that handles this
+      return await context.dataSources.promoterActivityCTADistributeAPI.postCreatePromoterActivityCTADistribute(entities);
+    }, 
+    postCreatePromoterActivityCTACollect: async (parent, {entities}, context, info) => {
+      // Assuming you have a method in your promoterActivityDriveAPI that handles this
+      return await context.dataSources.promoterActivityCTACollectAPI.postCreatePromoterActivityCTACollect(entities);
+    }, 
+    
+    
   }
 };
 module.exports = resolvers;

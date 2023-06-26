@@ -55,7 +55,10 @@ const myPlugin = {
       // Fires whenever Apollo Server will have errors
       async didEncounterErrors ( errors )
       {
-		console.log(errors);
+
+        console.log("ERRORS2");
+        console.log(errors);
+
         console.log( 'Request has errors! Errors:\n' + errors.extensions );
         /*if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
         {
@@ -137,11 +140,13 @@ const server = new ApolloServer({
   introspection: true,
   csrfPrevention: true,
   cache: 'bounded',
+
   cors: {
     origin: [ aOrigin, "https://studio.apollographql.com", 'http://localhost:3000',
       'http://v50gf.ibry-it.local:4000/', 'http://localhost:5173' ],
     credentials: true
   },
+
   plugins: [
     {
       async serverWillStart ()

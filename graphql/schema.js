@@ -8,9 +8,9 @@ scalar JSONObject
 
 type Query {
 	getPing: String
-	postLogin( username: String!, password: String!):JSONObject
+	postLogin( username: String!, password: String!):User
 	getFind(id: ID!): JSONObject
-	getFindByUser: JSONObject   
+	getFindByUser: [TimeRecording]   
 	getFindRange(from: Int, to: Int): JSONObject    
 	getCount: Int
 	getFindUser(id: ID!) : JSONObject
@@ -46,9 +46,22 @@ type User {
 	salutation: Salutation
 	status: Status
 	username: String
-	roles: [String] 
+	roles: [String]
+	areaName: String
 	companyName: String
-	locked: Boolean    
+	locked: Boolean
+	jwtToken: String
+	errorMessage: String
+}
+type TimeRecordingDistribute {
+	timeRecording: TimeRecording!
+	noOfFlyers: Int
+	timeRecordingCol: TimeRecordingCollection
+}
+
+type TimeRecordingCollection {
+	timeRecording: TimeRecording!
+	samples: [PromoSample]
 }
 
 type TimeRecording {
@@ -81,6 +94,44 @@ type PromoSample {
 	streetAddrees: String
 	tenants: String
 	user: User
+}
+
+input PromoterActivityHA {
+    id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	tentantsAcquired: Int,
+	tentantsNotMet: Int,
+	tentantsNoNeed: Int
+  }
+
+input PromoterActivityDrive {
+    id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	distanceDriven: Int
+  }
+
+  input PromoterActivityCTADistribute {
+   	id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	flyersDistributed: Int
+}
+
+input PromoterActivityCTACollect {
+   	id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	tentantsAcquired: Int
 }
 
 input PromoSampleInput {
@@ -158,12 +209,22 @@ type Mutation {
 	deleteTimeRecording(id: EntriesTimeRecording!): TimeRecording!
 
 	# Save, edit, delete PromoSamples
-	postCreatePromoSamples(entities: [PromoSampleInput]!): [PromoSample]!
+	postCreatePromoSamples(entities: [PromoSampleInput]!): [Int]!
+
 	editPromoSample(id: [ID]!, entity: PromoSampleInput!): PromoSample!
 	deletePromoSample(id: PromoSampleInput!): PromoSample!
 
 	# Edit User
 	editUser(id: [ID]!, entity: UserInput!): User!
+
+	# Save PromoterActivityHA
+	postCreatePromoterActivityHA(entities: [PromoterActivityHA]!): JSONObject!
+	# Save PromoterDriveActivity
+	postCreatePromoterDriveActivity(entities: [PromoterActivityDrive]!): JSONObject!
+	# Save postCreatePromoterActivityCTADistribute
+	postCreatePromoterActivityCTADistribute(entities: [PromoterActivityCTADistribute]!): JSONObject!
+	# Save postCreatePromoterActivityCTACollect
+	postCreatePromoterActivityCTACollect(entities: [PromoterActivityCTACollect]!): JSONObject!
 
 	postCreate(type: [EntriesTimeRecording]!): [TimeRecording]!
 	postLogin(userLoginRequest: UserLoginRequest!): JSONObject
