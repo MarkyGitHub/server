@@ -1,6 +1,6 @@
 require( 'dotenv' ).config();
 // Server declarations
-const { ApolloServer, gql } = require( 'apollo-server' );
+const { ApolloServer, gql } = require( 'apollo-server-express' );
 const { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginInlineTrace } = require( 'apollo-server-core' );
 const { GraphQLJSON, GraphQLJSONObject } = require( 'graphql-type-json' );
 
@@ -10,6 +10,10 @@ const CustomerAPI = require( "./services/rest/CustomerAPI" );
 const LoginAPI = require( "./services/rest/LoginAPI" );
 const TimeRecordingAPI = require( "./services/rest/TimeRecordingAPI" );
 const UserAPI = require( "./services/rest/UserAPI" );
+const PromoterActivityHAAPI = require( "./services/rest/PromoterActivityHAAPI" );
+const PromoterActivityDriveAPI = require("./services/rest/PromoterActivityDriveAPI");
+const PromoterActivityCTADistributeAPI = require("./services/rest/PromoterActivityCTADistributeAPI");
+const PromoterActivityCTACollectAPI = require("./services/rest/PromoterActivityCTACollectAPI");
 
 // GraphQL types, etc. delarations
 const typeDefs = require( './graphql/schema' );
@@ -20,10 +24,12 @@ const winston = require( 'winston' );
 const { format, createLogger, transports } = require( "winston" );
 const { combine, timestamp, label, printf, prettyPrint } = format;
 const CATEGORY = "VertriebsApp format";
+const express = require('express');
 
 // Error handling
-const { ApolloServerErrorCode } = require( '@apollo/server/errors' );
+//const { ApolloServerErrorCode } = require( '@apollo/server/errors' );
 const { GraphQLError } = require( 'graphql' );
+const cors = require('cors');
 
 // Security, Authentication, CORS, etc.
 
@@ -49,9 +55,9 @@ const myPlugin = {
       // Fires whenever Apollo Server will have errors
       async didEncounterErrors ( errors )
       {
+		console.log(errors);
         console.log( 'Request has errors! Errors:\n' + errors.extensions );
-        console.log( 'Request has errors! Errors:\n' + errors.extensions.code );
-        if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
+        /*if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
         {
           //GraphQLError.extensions.code
           console.log( 'Request has internal server errors! Errors:\n' + errors );
@@ -59,7 +65,7 @@ const myPlugin = {
         {
           console.log( 'Request has errors! Errors:\n ECONNREFUSED' + errors );
 
-        }
+        }*/
         console.log( 'Request has errors! Errors:\n' + errors );
       }
     };
@@ -89,32 +95,51 @@ const logger = winston.createLogger( {
 } );
 
 const aOrigin = process.env.yourOrigin
-const restURL = process.env.pwabackend_local
+const restURL = process.env.pwabackend_dev
+
+const app = express();
+
+
+// Define your CORS settings
+const corsOptions = {
+  origin: [aOrigin, "https://studio.apollographql.com", 'http://localhost:3000',
+  'http://v50gf.example.local:4000/', 'http://localhost:5173'], // replace with the domain of your client
+  credentials: true, // <-- REQUIRED backend setting
+};
+
+
+app.use(cors(corsOptions));
 
 // Set up Apollo Server
-const server = new ApolloServer( {
+const server = new ApolloServer({
   typeDefs,
   resolvers,
-  dataSources: () =>
-  {
+  context: async ({ req, res }) => {
     return {
-      customerAPI: new CustomerAPI( restURL ),
-      loginAPI: new LoginAPI( restURL ),
-      timeRecordingAPI: new TimeRecordingAPI( restURL ),
-      userAPI: new UserAPI( restURL ),
-    }
-  },
-  context: async () =>
-  {
-    return {
+      req,
+      res,
       logger,
+      cookies: req.cookies,
+    };
+  },
+  dataSources: () => {
+    return {
+      customerAPI: new CustomerAPI(restURL),
+      loginAPI: new LoginAPI(restURL),
+      timeRecordingAPI: new TimeRecordingAPI(restURL),
+      userAPI: new UserAPI(restURL),
+      promoterActivityHAAPI: new PromoterActivityHAAPI(restURL),
+      promoterActivityDriveAPI: new PromoterActivityDriveAPI(restURL),
+      promoterActivityCTADistributeAPI: new PromoterActivityCTADistributeAPI(restURL),
+      promoterActivityCTACollectAPI: new PromoterActivityCTACollectAPI(restURL),
     };
   },
   introspection: true,
   csrfPrevention: true,
   cache: 'bounded',
   cors: {
-    origin: [ aOrigin, "https://studio.apollographql.com", 'http://localhost:3000', 'http://v50gf.example.local:4000/' ],
+    origin: [ aOrigin, "https://studio.apollographql.com", 'http://localhost:3000',
+      'http://v50gf.example.local:4000/', 'http://localhost:5173' ],
     credentials: true
   },
   plugins: [
@@ -123,16 +148,29 @@ const server = new ApolloServer( {
       {
         console.log( 'Server Test GraphQL starting up....' );
       },
-      /* async requestDidStart ()
-      {
-        // token is properly inferred as a string
-        console.log( 'Server Test GraphQL stared!' );
-      }, */
+    
     },
     ApolloServerPluginLandingPageLocalDefault( { embed: true } ),
     ApolloServerPluginInlineTrace(), myPlugin
   ]
-} );
+});
+
+server.start().then(() => {
+  server.applyMiddleware({ app, cors: false }); // <-- use the CORS middleware, disable built-in cors in apollo server
+  if ( process.env.NODE_ENV !== 'test' )
+  {
+  app.listen({ port: 4000 }, () => {
+    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`);
+    logger.log({
+      level: 'info',
+      message: `Server ready at http://localhost:4000${server.graphqlPath}`,
+    });
+    
+  }
+  );
+  }
+}).catch((error) => console.error(error));
+
 
 /* const { url } = await startStandaloneServer( server, {
   context: async () =>
@@ -149,17 +187,6 @@ const server = new ApolloServer( {
     };
   },
 } ); */
-
-// Start our server if we're not in a test env.
-// if we're in a test env, we'll manually start it in a test
-if ( process.env.NODE_ENV !== 'test' )
-{
-  server.listen().then( () =>
-  {
-    console.log( `Server is running at ` + aOrigin );
-    logger.log( 'verbose', `Server is running at ` + aOrigin );
-  } );
-}
 
 // export all the important pieces for integration/e2e tests to use
 module.exports = {

@@ -1,4 +1,5 @@
 const { RESTDataSource } = require( 'apollo-datasource-rest' );
+const cookie = require('cookie');
 
 class CustomerAPI extends RESTDataSource
 {
@@ -15,16 +16,22 @@ class CustomerAPI extends RESTDataSource
     {
         request.headers.set( 'Content-Type', 'application/json' );
         request.headers.set( 'Accept-Encoding', 'gzip' );
-        //request.headers.set( 'Authorization', 'Basic ' + this.$jwt );
+
+        if (this.context.req.headers.cookie) {
+        const cookieHeader = this.context.req.headers.cookie;
+        const cookies = cookie.parse(cookieHeader);
+        const jwtToken = cookies.jwtToken;
+
+        request.headers.set( 'Authorization', `Bearer ${jwtToken}` );
+        }
 
     }
 
     // POST
-    async postCreate ( entity )
+    async postCreatePromoSamples ( entities )
     {
-        const data = this.post( `webresources/customer/${ encodeURIComponent( a ) }`, // path
-            { entity }, // request body
-        );
+        const data = this.post( `webresources/customer`, entities        );
+        return data;
     }
 
     // PUT
