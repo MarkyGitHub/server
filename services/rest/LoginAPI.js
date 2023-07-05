@@ -36,6 +36,7 @@ class LoginAPI extends RESTDataSource
     async getPing ()
     {
         const data = await this.get( `${ this.baseURL }webresources/login` );
+        
         return data;
     }
 
@@ -45,7 +46,6 @@ class LoginAPI extends RESTDataSource
           const data = await this.post(`${this.baseURL}webresources/login`,
             { "username": username, "password": password },
           );
-            
           return {
               id: data.id,
               name: data.name,
@@ -58,7 +58,8 @@ class LoginAPI extends RESTDataSource
               areaName: data.company.areaName,
               locked : data.status != 'AKTIV',
               jwtToken : data.jwtToken,
-              errorMessage : ''
+              errorMessage : '',
+              deliveryArea: data.company.deliveryArea
 
           }
         } catch (error) {
@@ -79,14 +80,49 @@ class LoginAPI extends RESTDataSource
               areaName: '',
               locked : true,
               jwtToken : '',
-              errorMessage : error.extensions.response.body
+              errorMessage : error.extensions.response.body,
+              deliveryArea: ['']
 
           }
             
-          } else if (error.extensions?.code === 'ECONNREFUSED') {
-            console.log('Request has errors! Errors:\n ECONNREFUSED' + error);
+          } else if (error.errno === 'ECONNREFUSED') {
+            console.log('Server not reachable! Errors:\n ECONNREFUSED' + error);
+            return {
+              id: 0,
+              name: '',
+              firstName: '',
+              salutation: 'Frau',
+              status: 'INAKTIV',
+              username: '',
+              roles: [''],
+              companyName: '',
+              areaName: '',
+              locked : true,
+              jwtToken : '',
+              errorMessage : 'Server not reachable',
+              deliveryArea: ['']
+
+          }
           } else {
+            console.log("Other mistakes in server distribution");
+            console.log(error.extensions);
             console.log(error);
+            return {
+              id: 0,
+              name: '',
+              firstName: '',
+              salutation: 'Frau',
+              status: 'INAKTIV',
+              username: '',
+              roles: [''],
+              companyName: '',
+              areaName: '',
+              locked : true,
+              jwtToken : '',
+              errorMessage : 'Server error',
+              deliveryArea: ['']
+
+          }
           }
         }
       }

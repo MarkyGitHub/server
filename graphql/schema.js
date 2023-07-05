@@ -52,6 +52,7 @@ type User {
 	locked: Boolean
 	jwtToken: String
 	errorMessage: String
+	deliveryArea: [String]!
 }
 type TimeRecordingDistribute {
 	timeRecording: TimeRecording!
@@ -73,12 +74,91 @@ type TimeRecording {
 	user: User
 }
 
+type PromoterActivityCTACollectOutput {
+    id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	tentantsAcquired: Int,
+	distributionActivityId: String,
+	promoSamples: [PromoSample]!
+}
+
+type PromoterActivityCTADistributeOutput {
+   	id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	flyersDistributed: Int
+}
+
+type PromoterActivityDriveOutput {
+    id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	distanceDriven: Int
+}
+
+type PromoterActivityHAOutput {
+    id: ID!,
+	startTime: String,
+	endTime: String,
+	duration: Int,
+	description: String,
+	tentantsAcquired: Int,
+	tentantsNotMet: Int,
+	tentantsNoNeed: Int,
+	promoSamples: [PromoSample]!
+}
+
+
+type PromoterActivities {
+	ctaCollectActivities : [PromoterActivityCTACollectOutput]
+	ctaDistributeActivities : [PromoterActivityCTADistributeOutput]
+	driveActivities : [PromoterActivityDriveOutput]
+	haActivities : [PromoterActivityHAOutput]
+}
+
+input PromoterActivitiesInput {
+	ctaCollectActivities : [PromoterActivityCTACollect]
+	ctaDistributeActivities : [PromoterActivityCTADistribute]
+	driveActivities : [PromoterActivityDrive]
+	haActivities : [PromoterActivityHA]
+}
+
+
 type PromoSample {
 	id: ID!
 	birthDate: Date!
 	callingTime: String
 	city: String
 	cityInfor: String
+	companyName: String
+	country: String
+	deliveryDate: Date!
+	email: String
+	firstName: String
+	name: String
+	phone: String
+	postCode: String
+	storagePlace: String
+	remark: String
+	salutation: Salutation
+	streetAddrees: String
+	tenants: Int
+	user: User
+}
+
+
+input PlainPromoSample {
+	birthDate: Date!
+	callingTime: String
+	city: String
+	cityInfo: String
 	code: String
 	companyName: String
 	country: String
@@ -88,13 +168,13 @@ type PromoSample {
 	name: String
 	phone: String
 	postCode: String
-	reson: String
+	storagePlace: String
 	remark: String
 	salutation: Salutation
-	streetAddrees: String
-	tenants: String
-	user: User
+	streetAddress: String
+	tenants: Int
 }
+
 
 input PromoterActivityHA {
     id: ID!,
@@ -104,8 +184,9 @@ input PromoterActivityHA {
 	description: String,
 	tentantsAcquired: Int,
 	tentantsNotMet: Int,
-	tentantsNoNeed: Int
-  }
+	tentantsNoNeed: Int,
+	promoSamples: [PlainPromoSample]!
+}
 
 input PromoterActivityDrive {
     id: ID!,
@@ -131,7 +212,9 @@ input PromoterActivityCTACollect {
 	endTime: String,
 	duration: Int,
 	description: String,
-	tentantsAcquired: Int
+	tentantsAcquired: Int,
+	distributionActivityId: String,
+	promoSamples: [PlainPromoSample]!
 }
 
 input PromoSampleInput {
@@ -140,6 +223,7 @@ input PromoSampleInput {
 	name: String
 	companyName: String
 	phone: String
+	code : String
 	email: String
 	streetAddress: String
 	postCode: String
@@ -199,7 +283,8 @@ input UserInput {
 	status: Status
 	username: String
 	role: String
-	companyName: String     
+	companyName: String
+	
 }
 
 type Mutation {
@@ -225,6 +310,8 @@ type Mutation {
 	postCreatePromoterActivityCTADistribute(entities: [PromoterActivityCTADistribute]!): JSONObject!
 	# Save postCreatePromoterActivityCTACollect
 	postCreatePromoterActivityCTACollect(entities: [PromoterActivityCTACollect]!): JSONObject!
+	# Save postCreatePromoterActivities
+	postCreatePromoterActivities(entities: PromoterActivitiesInput!): JSONObject!
 
 	postCreate(type: [EntriesTimeRecording]!): [TimeRecording]!
 	postLogin(userLoginRequest: UserLoginRequest!): JSONObject
