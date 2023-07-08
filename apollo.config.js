@@ -1,4 +1,4 @@
-module.exports = {
+exports = {
     service: {
         name: 'Apollo-Server@Test-GraphQL',
         endpoint: {

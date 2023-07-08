@@ -13,7 +13,7 @@ const UserAPI = require("./services/rest/UserAPI");
 
 // GraphQL types, etc. delarations
 const { gql } = require('apollo-server');
-const typeDefs = require('./graphql/schema');
+const typeDefs = require('./graphql/schema.js');
 //const resolvers = require('./graphql/resolvers');
 
 const logger = require('./log/indexAlt');

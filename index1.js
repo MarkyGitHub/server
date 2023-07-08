@@ -6,7 +6,7 @@ import http from 'http';
 require('dotenv').config();
 const { ApolloServerPluginLandingPageLocalDefault } = require('apollo-server-core');
 
-const typeDefs = require('./graphql/schema');
+const typeDefs = require('./graphql/schema.js');
 
 async function startApolloServer() {
     const configurations = {
