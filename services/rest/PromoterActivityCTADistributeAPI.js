@@ -1,5 +1,6 @@
-const { RESTDataSource } = require( 'apollo-datasource-rest' );
-const cookie = require('cookie');
+import { RESTDataSource } from '@apollo/datasource-rest';
+
+import cookie from 'cookie';
 
 class PromoterActivityCTADistribute extends RESTDataSource
 {

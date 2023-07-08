@@ -1,4 +1,4 @@
-const winston = require("winston");
+import  { fwinston } from "winston";
 
 let transports = [
   new winston.transports.File({

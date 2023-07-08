@@ -1,4 +1,4 @@
-module.exports = {
+exports = {
     service: {
         name: 'Apollo-Server@Bry-IT',
         endpoint: {

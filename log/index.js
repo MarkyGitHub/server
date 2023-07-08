@@ -1,6 +1,6 @@
 //Logger declarations
-const { format, createLogger, transports } = require("winston");
-const { combine, timestamp, label, printf, prettyPrint } = format;
+import  { format, createLogger, transports } from "winston";
+import  { combine, timestamp, label, printf, prettyPrint } from format;
 const CATEGORY = "VertriebsApp format";
 
 const logger = createLogger({

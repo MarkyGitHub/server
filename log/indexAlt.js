@@ -1,4 +1,4 @@
-const winston = require('winston');
+import  { format, createLogger, transports } from "winston";
 
 let transports = [
   new winston.transports.File({
