@@ -1,12 +1,13 @@
-const { RESTDataSource } = require( 'apollo-datasource-rest' );
-const { GraphQLJSON, GraphQLJSONObject } = require( 'graphql-type-json' );
+import { RESTDataSource } from '@apollo/datasource-rest';
+
+import { GraphQLJSON, GraphQLJSONObject } from 'graphql-type-json' ;
 
 class LoginAPI extends RESTDataSource
 {
 
     constructor ( $restURL )
     {
-        super();
+        super();        
         this.baseURL = $restURL;
     }
 
@@ -35,9 +36,7 @@ class LoginAPI extends RESTDataSource
     // GET
     async getPing ()
     {
-        const data = await this.get( `${ this.baseURL }webresources/login` );
-        
-        return data;
+        return await this.get( `${ this.baseURL }webresources/login` );              
     }
 
     // POST
@@ -105,8 +104,7 @@ class LoginAPI extends RESTDataSource
           }
           } else {
             console.log("Other mistakes in server distribution");
-            console.log(error.extensions);
-            console.log(error);
+            console.log(error.extensions.response.body);
             return {
               id: 0,
               name: '',
@@ -119,7 +117,7 @@ class LoginAPI extends RESTDataSource
               areaName: '',
               locked : true,
               jwtToken : '',
-              errorMessage : 'Server error',
+              errorMessage : error.extensions.response.body,
               deliveryArea: ['']
 
           }
@@ -127,5 +125,3 @@ class LoginAPI extends RESTDataSource
         }
       }
 }
-
-module.exports = LoginAPI;
