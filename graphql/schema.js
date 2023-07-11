@@ -1,5 +1,5 @@
-const { gql } = require( 'apollo-server' );
-const { GraphQLJSON, GraphQLJSONObject } = require( 'graphql-type-json' );
+import pkg from 'graphql-tag';
+const { gql } = pkg;
 
 const typeDefs = gql`
 
@@ -319,4 +319,4 @@ type Mutation {
 
 ` ;
 
-module.exports = typeDefs;
+export default typeDefs;
