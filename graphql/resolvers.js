@@ -1,6 +1,3 @@
-const { UserInputError } = require("apollo-server-express");
-const { Logger } = require("winston");
-
 const resolvers = {
   Query: {
     /**
@@ -140,4 +137,5 @@ const resolvers = {
     }
   }
 };
-module.exports = resolvers;
+
+export default resolvers;
