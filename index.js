@@ -2,19 +2,22 @@ import "dotenv/config";
 // Server declarations
 import cookie from 'cookie';
 import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
 import { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPageProductionDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import { expressMiddleware } from '@apollo/server/express4';
 
-// App declarations
 import express from 'express';
+import http from 'http';
 import cors from 'cors';
 import pkg from 'body-parser';
 const { json } = pkg;
-import { constraintDirectiveTypeDefs, constraintDirectiveDocumentation } from 'graphql-constraint-directive';
-import { makeExecutableSchema } from '@graphql-tools/schema';
+
+// GraphQL types, etc. declarations
+import { readFileSync } from 'fs';
 
 // Rest data source delarations
+import { RESTDataSource } from '@apollo/datasource-rest';
 import LoginAPI from "./services/rest/LoginAPI.js";
 import PromoterActivitiesAPI from './services/rest/PromoterActivitiesAPI.js';
 
@@ -22,36 +25,29 @@ import PromoterActivitiesAPI from './services/rest/PromoterActivitiesAPI.js';
 import winston from 'winston';
 const { format, transports, createLogger, combine } = winston;
 const { CATEGORY } = "VertriebsApp format";
-const { timestamp, label, printf, prettyPrint } = format;
 
 // GraphQL types, etc. declarations
 import typeDefs from './graphql/schema.js';
 import resolvers from './graphql/resolvers.js';
-
-//Make Schema validation
-let schema = makeExecutableSchema( {
-  typeDefs: [ constraintDirectiveTypeDefs, typeDefs ]
-} );
-
 
 // Error handling
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 
 const myPlugin = {
   // Fires whenever a GraphQL request is received from a client.
-  async requestDidStart ( contextValue )
+  async requestDidStart ( requestContext )
   {
     return {
       // Fires whenever Apollo Server will parse a GraphQL
       // request to create its associated document AST.
-      async parsingDidStart ( contextValue )
+      async parsingDidStart ( requestContext )
       {
         console.log( "Parsing started!" );
       },
 
       // Fires whenever Apollo Server will validate a
       // request's document AST against your GraphQL schema.
-      async validationDidStart ( contextValue )
+      async validationDidStart ( requestContext )
       {
         console.log( "Validation started!" );
       },
@@ -95,6 +91,16 @@ const isProduction = process.env.NODE_ENV === "production";
 const aOrigin = process.env.yourOrigin;
 const restURL = isProduction ? process.env.pwabackend_prod : process.env.pwabackend_dev;
 
+const configurations = {
+  // Note: You may need sudo to run on port 443
+  production: { ssl: true, port: 443, hostname: 'morgengold.de' },
+  development: { ssl: false, port: 4000, hostname: 'localhost' },
+};
+
+const config = configurations[ process.env.NODE_ENV || 'production' ];
+
+const app = express();
+
 // Define your CORS settings for development
 const corsOptionsDev = {
   origin: [
@@ -104,8 +110,8 @@ const corsOptionsDev = {
     "http://v50gf.ibry-it.local:4000/",
     "http://localhost:5173",
     "https://mogo.ibry-it.local/vertrieb-app",
-    "https://v50gf.ibry-it.local:8095",
-    "https://v50gf.ibry-it.local:8181",
+    "http://v50gf.ibry-it.local:8095/vertrieb-app",
+    "https://v50gf.ibry-it.local:8181/vertrieb-app",
   ], // replace with the domain of your client
   credentials: true // <-- REQUIRED backend setting
 };
@@ -116,7 +122,9 @@ const corsOptionsProd = {
   credentials: true // <-- REQUIRED backend setting
 };
 
-// Set up Apollo Server 4
+const aCORS = isProduction ? corsOptionsProd : corsOptionsDev
+
+// Set up Apollo Server
 const server = new ApolloServer( {
   typeDefs,
   resolvers,
@@ -124,7 +132,7 @@ const server = new ApolloServer( {
   csrfPrevention: true,
   cache: "bounded",
   cors: {
-    ...( isProduction ? corsOptionsProd : corsOptionsDev )
+    aCORS
   },
   plugins: [
     {
@@ -134,65 +142,26 @@ const server = new ApolloServer( {
       }
     },
     ...( isProduction
-      ? [ ApolloServerPluginLandingPageProductionDefault( { embed: false } ) ]
+      ? []
       : [ ApolloServerPluginLandingPageLocalDefault( { embed: true } ) ] ), // disable in production
     ApolloServerPluginInlineTrace(),
     myPlugin
   ]
 } );
 
-// Start the server
 await server.start();
-
-// Give out customized error messages
-schema = constraintDirectiveDocumentation(
-  {
-    header: '*Changed header:*',
-    descriptionsMap: {
-      minLength: 'Changed Minimum length',
-      maxLength: 'Changed Maximum length',
-      startsWith: 'Changed Starts with',
-      endsWith: 'Changed Ends with',
-      contains: 'Changed Contains',
-      notContains: 'Changed Doesn\'t contain',
-      pattern: 'Changed Must match RegEx pattern',
-      format: 'Changed Must match format',
-      min: 'Changed Minimum value',
-      max: 'Changed Maximum value',
-      exclusiveMin: 'Changed Grater than',
-      exclusiveMax: 'Changed Less than',
-      multipleOf: 'Changed Must be a multiple of',
-      minItems: 'Changed Minimum number of items',
-      maxItems: 'Changed Maximum number of items'
-    }
-  }
-)( schema );
-
-// Format Error messages as needed
-const formatError = function ( error )
-{
-  const code = error?.originalError?.originalError?.code || error?.originalError?.code || error?.code
-  if ( code === 'ERR_GRAPHQL_CONSTRAINT_VALIDATION' || 'BAD_USER_INPUT' )
-  {
-    // return a custom object
-  }
-
-  return error
-}
-
-const app = express();
 
 app.use(
   '/graphql',
-  cors( isProduction ? corsOptionsProd : corsOptionsDev ),
+  cors( aCORS ),
   json(),
-  formatError,
   expressMiddleware( server, {
     context: async ( { req, res } ) =>
     {
-      console.log( req );
+      const cookies = cookie.parse( req.headers.cookie || '' );
+      const jwtToken = cookies.jwtToken;
       const loginAPI = new LoginAPI( restURL, req );
-      const promoterActivitiesAPI = new PromoterActivitiesAPI( restURL, req );
+      const promoterActivitiesAPI = new PromoterActivitiesAPI( restURL, req, jwtToken );
       return {
         request: req,
         response: res,
@@ -207,10 +176,10 @@ app.use(
 
 app.listen( { port: 4000 }, () =>
 {
-  console.log( `Server ready at ${ aOrigin }` );
-  console.log( `Backend ready at ${ restURL }` );
+  console.log( `Server ready at ${ process.env.yourOrigin }` );
+  console.log( `Backend ready at ${ process.env.pwabackend_dev }` );
   logger.log( {
     level: "info",
-    message: `Server ready at ${ app.get( URL ) }`
+    message: `Server ready at ${ process.env.yourOrigin }`
   } );
 } );
