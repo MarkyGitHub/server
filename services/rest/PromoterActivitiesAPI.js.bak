@@ -1,0 +1,97 @@
+import pkg from '@apollo/datasource-rest';
+const { RESTDataSource, AugmentedRequest } = pkg;
+
+<<<<<<< .mine
+import cookie from 'cookie';
+
+||||||| .r36406
+import cookie from  'cookie';
+
+=======
+>>>>>>> .r36422
+class PromoterActivitiesAPI extends RESTDataSource
+{
+
+    constructor ( $restURL, req, jwtToken )
+    {
+        super();
+        this.baseURL = $restURL;
+        this.jwtToken = jwtToken;
+    }
+
+    willSendRequest (_path, request )
+    {
+        request.headers[ 'Content-Type' ] = 'application/json';
+        request.headers[ 'Accept-Encoding' ] = 'gzip';
+
+        //request.headers.set( 'Authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJNb3JnZW5nb2xkIiwiZXhwIjoxNjg3NTI3ODkyLCJ1c2VySWQiOiIwNzU1MDIiLCJpYXQiOjE2ODY2NjM4OTIsImp0aSI6IjE1NjAwYzBmLTc5NWMtNDY0Yy1iZjQ4LTRiODU3MWI1ZjIxNSJ9.L0TgRM_gRp-4uXYrEmGGBIkN4WQM6jarIQW2CFHBan4` );*/
+
+<<<<<<< .mine
+        if ( this.contextValue.req.headers.cookie )
+        {
+            const cookieHeader = this.contextValue.req.headers.cookie;
+            const cookies = cookie.parse( cookieHeader );
+            const jwtToken = cookies.jwtToken;
+||||||| .r36406
+        if (this.context.req.headers.cookie) {
+        const cookieHeader = this.context.req.headers.cookie;
+        const cookies = cookie.parse(cookieHeader);
+        const jwtToken = cookies.jwtToken;
+=======
+        if (this.jwtToken) {
+          request.headers['Authorization'] = `Bearer ${this.jwtToken}`;
+        }
+    }
+>>>>>>> .r36422
+
+<<<<<<< .mine
+            request.headers[ 'Authorization' ] = `Bearer ${ jwtToken }`;
+||||||| .r36406
+        request.headers['Authorization'] = `Bearer ${jwtToken}`;
+=======
+    async postData(url = "", data = {}) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization' : `Bearer ${this.jwtToken}`,
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const jsonResponse = await response.json();
+            return jsonResponse;
+        } catch (error) {
+            console.error('Error:', error);
+            return {};
+>>>>>>> .r36422
+        }
+    }
+
+    // POST
+    async postCreatePromoterActivities ( entities )
+    {
+<<<<<<< .mine
+        console.log( "ENTITIES" );
+        console.log( JSON.stringify( entities ) );
+        const data = this.post( `webresources/promoterActivities`, entities );
+||||||| .r36406
+        console.log("ENTITIES");
+        console.log(JSON.stringify(entities));
+        const data = this.post( `webresources/promoterActivities`, entities);
+=======
+        const data = this.postData( this.baseURL + 'webresources/promoterActivities', entities);
+>>>>>>> .r36422
+        return data;
+    }
+
+}
+export default PromoterActivitiesAPI;

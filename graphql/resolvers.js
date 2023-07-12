@@ -12,7 +12,7 @@ const resolvers = {
         password
       );
       if (data && data.jwtToken) {
-        context.res.cookie("jwtToken", data.jwtToken, {
+        context.response.cookie("jwtToken", data.jwtToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           maxAge: 1000 * 60 * 60 * 24
