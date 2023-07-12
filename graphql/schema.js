@@ -52,7 +52,7 @@ type User {
 	locked: Boolean
 	jwtToken: String
 	errorMessage: String
-	deliveryArea: [String]!
+	deliveryArea: [String]
 }
 type TimeRecordingDistribute {
 	timeRecording: TimeRecording!
