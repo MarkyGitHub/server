@@ -1,4 +1,5 @@
 import pkg from "@apollo/datasource-rest";
+import fetch from 'node-fetch';
 const { RESTDataSource, AugmentedRequest } = pkg;
 import { ApolloServerErrorCode } from "@apollo/server/errors";
 import parser from "body-parser";

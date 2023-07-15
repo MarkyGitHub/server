@@ -1,4 +1,5 @@
 import "dotenv/config";
+
 // Server declarations
 import cookie from 'cookie';
 import { ApolloServer } from '@apollo/server';
@@ -7,6 +8,12 @@ import { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPag
 import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import { expressMiddleware } from '@apollo/server/express4';
 
+// Server constants
+const isProduction = process.env.NODE_ENV === "production";
+const aOrigin = process.env.yourOrigin;
+const restURL = isProduction ? process.env.pwabackend_prod : process.env.pwabackend_dev;
+
+// App declarations
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -22,58 +29,15 @@ import LoginAPI from "./services/rest/LoginAPI.js";
 import PromoterActivitiesAPI from './services/rest/PromoterActivitiesAPI.js';
 
 //Logger
+import loglevel from 'loglevel';
 import winston from 'winston';
 const { format, transports, createLogger, combine } = winston;
-const { CATEGORY } = "VertriebsApp format";
+const { CATEGORY } = "PromoApp format";
+let logger = loglevel.getLogger( 'apollo-server' );
 
-// GraphQL types, etc. declarations
-import typeDefs from './graphql/schema.js';
-import resolvers from './graphql/resolvers.js';
+logger.setLevel( isProduction === false ? loglevel.levels.DEBUG : loglevel.levels.INFO );
 
-// Error handling
-import { ApolloServerErrorCode } from '@apollo/server/errors';
-
-const myPlugin = {
-  // Fires whenever a GraphQL request is received from a client.
-  async requestDidStart ( requestContext )
-  {
-    return {
-      // Fires whenever Apollo Server will parse a GraphQL
-      // request to create its associated document AST.
-      async parsingDidStart ( requestContext )
-      {
-        console.log( "Parsing started!" );
-      },
-
-      // Fires whenever Apollo Server will validate a
-      // request's document AST against your GraphQL schema.
-      async validationDidStart ( requestContext )
-      {
-        console.log( "Validation started!" );
-      },
-      // Fires whenever Apollo Server will have errors
-      async didEncounterErrors ( errors )
-      {
-        console.log( errors );
-        console.log( "Request has errors! Errors:\n" + errors.extensions );
-        if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
-        {
-          //GraphQLError.extensions.code
-          console.log( 'Request has internal server errors! Errors:\n' + errors );
-        } else if ( errors.extensions?.code === 'ECONNREFUSED' )
-        {
-          console.log( 'Request has errors! Errors:\n ECONNREFUSED' + errors );
-
-        }
-        console.log( "Request has errors! Errors:\n" + errors );
-      }
-    };
-  }
-};
-
-const logger = winston.createLogger( {
-  level: "info",
-
+logger = winston.createLogger( {
   transports: [
     new transports.File( {
       filename: "./log/error.log",
@@ -87,9 +51,69 @@ const logger = winston.createLogger( {
   ]
 } );
 
-const isProduction = process.env.NODE_ENV === "production";
-const aOrigin = process.env.yourOrigin;
-const restURL = isProduction ? process.env.pwabackend_prod : process.env.pwabackend_dev;
+// GraphQL types, etc. declarations
+import typeDefs from './graphql/schema.js';
+import resolvers from './graphql/resolvers.js';
+
+// Error handling
+import { ApolloServerErrorCode } from '@apollo/server/errors';
+import { timeStamp } from "console";
+
+const myPlugin = {
+  // Fires whenever a GraphQL request is received from a client.
+  async requestDidStart ( requestContext )
+  {
+    return {
+      // Fires whenever Apollo Server will parse a GraphQL
+      // request to create its associated document AST.
+      async parsingDidStart ( requestContext )
+      {
+        logger.log( {
+          level: "info",
+          message: `Parsing started!`
+        } );
+      },
+
+      // Fires whenever Apollo Server will validate a
+      // request's document AST against your GraphQL schema.
+      async validationDidStart ( requestContext )
+      {
+        logger.log( {
+          level: "info",
+          message: `Validation started!`
+        } );
+      },
+      // Fires whenever Apollo Server will have errors
+      async didEncounterErrors ( errors )
+      {
+        logger.log( {
+          level: "error",
+          message: errors
+        } );
+        logger.log( {
+          level: "error",
+          message: `Request has errors! Errors:\n ${ errors.extensions }`
+        } );
+        if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
+        {
+          //GraphQLError.extensions.code
+          logger.log( {
+            level: "error",
+            message: `Request has internal server errors!`
+          } );
+
+        } else if ( errors.extensions?.code === 'ECONNREFUSED' )
+        {
+          logger.log( {
+            level: "error",
+            message: `Request has errors! Errors:\n ECONNREFUSED`
+          } );
+
+        }
+      }
+    };
+  }
+};
 
 const configurations = {
   // Note: You may need sudo to run on port 443
@@ -109,9 +133,9 @@ const corsOptionsDev = {
     "http://localhost:3000",
     "http://v50gf.ibry-it.local:4000/",
     "http://localhost:5173",
-    "https://mogo.ibry-it.local/vertrieb-app",
-    "http://v50gf.ibry-it.local:8095/vertrieb-app",
-    "https://v50gf.ibry-it.local:8181/vertrieb-app",
+    "https://mogo.ibry-it.local/promoapp",
+    "https://v50gf.ibry-it.local:8095",
+    "https://v50gf.ibry-it.local:8181",
   ], // replace with the domain of your client
   credentials: true // <-- REQUIRED backend setting
 };
@@ -131,6 +155,8 @@ const server = new ApolloServer( {
   introspection: true,
   csrfPrevention: true,
   cache: "bounded",
+  logger,
+  status400ForVariableCoercionErrors: true,
   cors: {
     aCORS
   },
@@ -162,6 +188,7 @@ app.use(
       const jwtToken = cookies.jwtToken;
       const loginAPI = new LoginAPI( restURL, req );
       const promoterActivitiesAPI = new PromoterActivitiesAPI( restURL, req, jwtToken );
+      logger;
       return {
         request: req,
         response: res,
@@ -176,10 +203,20 @@ app.use(
 
 app.listen( { port: 4000 }, () =>
 {
-  console.log( `Server ready at ${ process.env.yourOrigin }` );
-  console.log( `Backend ready at ${ process.env.pwabackend_dev }` );
   logger.log( {
     level: "info",
-    message: `Server ready at ${ process.env.yourOrigin }`
+    message: `Server ready at ${ aOrigin }`
+  } );
+  logger.log( {
+    level: "info",
+    message: `Backend ready at ${ restURL }`
+  } );
+  logger.log( {
+    level: "info",
+    message: `Server is running in Production MODE: ${ isProduction }`
+  } );
+  logger.log( {
+    level: "info",
+    message: `Server started @: ${ new Date( Date.now() ).toLocaleString() }`
   } );
 } );
