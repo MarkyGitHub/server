@@ -21,7 +21,8 @@ import pkg from 'body-parser';
 const { json } = pkg;
 
 // GraphQL types, etc. declarations
-import { readFileSync } from 'fs';
+import typeDefs from './graphql/schema.js';
+import resolvers from './graphql/resolvers.js';
 
 // Rest data source delarations
 import { RESTDataSource } from '@apollo/datasource-rest';
@@ -51,13 +52,8 @@ logger = winston.createLogger( {
   ]
 } );
 
-// GraphQL types, etc. declarations
-import typeDefs from './graphql/schema.js';
-import resolvers from './graphql/resolvers.js';
-
 // Error handling
 import { ApolloServerErrorCode } from '@apollo/server/errors';
-import { timeStamp } from "console";
 
 const myPlugin = {
   // Fires whenever a GraphQL request is received from a client.
