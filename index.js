@@ -160,7 +160,10 @@ const server = new ApolloServer( {
     {
       async serverWillStart ()
       {
-        console.log( "Server Test GraphQL starting up...." );
+        logger.log( {
+          level: "info",
+          message: `Server Test GraphQL starting up....`
+        } );
       }
     },
     ...( isProduction
