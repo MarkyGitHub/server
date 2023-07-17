@@ -160,7 +160,10 @@ const server = new ApolloServer( {
     {
       async serverWillStart ()
       {
-        console.log( "Server Bry-IT starting up...." );
+        logger.log( {
+          level: "info",
+          message: `Server Bry-IT starting up....`
+        } );
       }
     },
     ...( isProduction
