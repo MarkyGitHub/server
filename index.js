@@ -1,9 +1,8 @@
 import "dotenv/config";
 
 // Server declarations
-import cookie from 'cookie';
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
+
 import { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPageProductionDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import { expressMiddleware } from '@apollo/server/express4';
@@ -19,13 +18,13 @@ import http from 'http';
 import cors from 'cors';
 import pkg from 'body-parser';
 const { json } = pkg;
+import cookie from 'cookie';
 
 // GraphQL types, etc. declarations
 import typeDefs from './graphql/schema.js';
 import resolvers from './graphql/resolvers.js';
 
 // Rest data source delarations
-import { RESTDataSource } from '@apollo/datasource-rest';
 import LoginAPI from "./services/rest/LoginAPI.js";
 import PromoterActivitiesAPI from './services/rest/PromoterActivitiesAPI.js';
 
@@ -208,11 +207,11 @@ app.listen( { port: 4000 }, () =>
   } );
   logger.log( {
     level: "info",
-    message: `Backend ready at ${ restURL }`
+    message: `Backend running at ${ restURL }`
   } );
   logger.log( {
     level: "info",
-    message: `Server is running in Production MODE: ${ isProduction }`
+    message: `Server is in Production MODE: ${ isProduction }`
   } );
   logger.log( {
     level: "info",
