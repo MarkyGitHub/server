@@ -1,33 +1,33 @@
-const path = require( 'path' );
-const nodeExternals = require( 'webpack-node-externals' );
+const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 const buildDirectory = 'dist/server';
 
-exports = {
+module.exports = {
   mode: 'production',
   entry: [
     './src/server/index.js'
   ],
   output: {
-    path: path.join( __dirname, buildDirectory ),
+    path: path.join(__dirname, buildDirectory),
     filename: 'bundle.js',
     publicPath: '/server'
   },
   module: {
-    rules: [ {
+    rules: [{
       test: /\.js$/,
       use: {
         loader: 'babel-loader',
         options: {
-          plugins: [ "@babel/plugin-transform-runtime" ]
+          plugins: ["@babel/plugin-transform-runtime"]
         }
       },
-    } ],
+    }],
   },
   node: {
     __dirname: false,
     __filename: false,
   },
   target: 'node',
-  externals: [ nodeExternals() ],
+  externals: [nodeExternals()],
   plugins: [],
 };

@@ -95,6 +95,7 @@ class LoginAPI extends RESTDataSource
         id: data.id,
         name: data.name,
         firstName: data.firstName,
+        lastName: data.name,
         salutation: data.salutationLabel,
         status: data.status,
         username: data.userName,
@@ -112,12 +113,11 @@ class LoginAPI extends RESTDataSource
       console.log( error );
       if ( error.message.indexOf( '401' ) != -1 )
       {
-        console.log( "User is not authorized, blocked, or not active" );
-
         return {
           id: 0,
           name: "",
           firstName: "",
+          lastName : "",
           salutation: "Frau",
           status: "INAKTIV",
           username: "",
@@ -126,18 +126,17 @@ class LoginAPI extends RESTDataSource
           areaName: "",
           locked: true,
           jwtToken: "",
-          errorMessage: "Falscher Benutzername oder Passwort",
+          errorMessage: "Anmeldung fehlgeschlagen! Bitte gib die korrekten Zugangsdaten ein.",
           deliveryArea: [ "" ],
         };
       } else
         if ( error.message.indexOf( '403' ) != -1 )
         {
-          console.log( "User is not authorized, blocked, or not active" );
-
           return {
             id: 0,
             name: "",
             firstName: "",
+            lastName : "",
             salutation: "Frau",
             status: "INAKTIV",
             username: "",
@@ -146,7 +145,7 @@ class LoginAPI extends RESTDataSource
             areaName: "",
             locked: true,
             jwtToken: "",
-            errorMessage: "Benutzer nicht authorisiert, blockiert oder nicht aktiv",
+            errorMessage: "Zugang nicht aktiv! Bitte wende dich an deinen Morgengold Partner.",
             deliveryArea: [ "" ],
           };
         } else if ( error.message.indexOf( 'Fetch failed' ) != -1 )
@@ -156,6 +155,7 @@ class LoginAPI extends RESTDataSource
             id: 0,
             name: "",
             firstName: "",
+            lastName : "",
             salutation: "Frau",
             status: "INAKTIV",
             username: "",
@@ -164,7 +164,7 @@ class LoginAPI extends RESTDataSource
             areaName: "",
             locked: true,
             jwtToken: "",
-            errorMessage: "REST-Server nicht erreichbar",
+            errorMessage: "Backend-Server nicht erreichbar. Bitte probiere es später noch einmal.",
             deliveryArea: [ "" ],
           };
         } else
@@ -175,6 +175,7 @@ class LoginAPI extends RESTDataSource
             id: 0,
             name: "",
             firstName: "",
+            lastName : "",
             salutation: "Frau",
             status: "INAKTIV",
             username: "",

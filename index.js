@@ -7,6 +7,15 @@ import { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPag
 import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import { expressMiddleware } from '@apollo/server/express4';
 
+//GraphQL input validation
+import validation from 'graphql-constraint-directive';
+const { createApolloQueryValidationPlugin, constraintDirectiveTypeDefs, constraintDirectiveDocumentation } = validation;
+import { GraphQLError } from 'graphql';
+
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import loglevel from 'loglevel';
+import winston from 'winston';
+
 // Server constants
 const isProduction = process.env.NODE_ENV === "production";
 const aOrigin = process.env.yourOrigin;
@@ -20,17 +29,70 @@ import pkg from 'body-parser';
 const { json } = pkg;
 import cookie from 'cookie';
 
-// GraphQL types, etc. declarations
-import typeDefs from './graphql/schema.js';
-import resolvers from './graphql/resolvers.js';
-
 // Rest data source delarations
 import LoginAPI from "./services/rest/LoginAPI.js";
 import PromoterActivitiesAPI from './services/rest/PromoterActivitiesAPI.js';
 
+// GraphQL types, resolvers, etc. declarations
+import typeDefs from './graphql/schema.js';
+import resolvers from './graphql/resolvers.js';
+
+//Json
+import { GraphQLJSON, GraphQLJSONObject } from 'graphql-type-json';
+
+let schema = makeExecutableSchema( {
+  typeDefs: [ constraintDirectiveTypeDefs, typeDefs ],
+  resolvers: resolvers, // Make sure your resolvers are defined
+  constraintDirectiveDocumentation: constraintDirectiveDocumentation(
+    {
+      header: '*Changed header:*',
+      descriptionsMap: {
+        minLength: 'Minimale Länge wurde nicht erreicht.',
+        maxLength: 'Maximale Länge wurde überschritten.',
+        startsWith: 'Beginnt nicht mit ',
+        endsWith: 'Beginnt nicht mit ',
+        contains: 'Enthält ',
+        notContains: 'Enthält nicht',
+        pattern: 'Eingabe muss mit dem Eingabemuster übereinstimmen.',
+        format: 'Eingabe muss mit dem Format übereinstimmen.',
+        min: 'Minimum value',
+        max: 'Maximum value',
+        exclusiveMin: 'Mindestwert nicht erreicht.',
+        exclusiveMax: 'Weniger als Wert überschritten.',
+        multipleOf: 'Muss ein Vielfaches sein.',
+        minItems: 'Mindestanzahl an Artikeln nicht erreicht.',
+        maxItems: 'Maximalanzahl an Artikeln nicht erreicht.'
+      }
+    }
+  ),
+} )
+
+/* schema = constraintDirectiveDocumentation(
+  {
+    header: '*Changed header:*',
+    descriptionsMap: {
+      minLength: 'Minimale Länge wurde nicht erreicht.',
+      maxLength: 'Maximale Länge wurde überschritten.',
+      startsWith: 'Beginnt nicht mit ',
+      endsWith: 'Beginnt nicht mit ',
+      contains: 'Enthält ',
+      notContains: 'Enthält nicht',
+      pattern: 'Eingabe muss mit dem Eingabemuster übereinstimmen.',
+      format: 'Eingabe muss mit dem Format übereinstimmen.',
+      min: 'Minimum value',
+      max: 'Maximum value',
+      exclusiveMin: 'Mindestwert nicht erreicht.',
+      exclusiveMax: 'Weniger als Wert überschritten.',
+      multipleOf: 'Muss ein Vielfaches sein.',
+      minItems: 'Mindestanzahl an Artikeln nicht erreicht.',
+      maxItems: 'Maximalanzahl an Artikeln nicht erreicht.'
+    }
+  }
+)( schema ); */
+
+//schema = constraintDirective()( schema )
+
 //Logger
-import loglevel from 'loglevel';
-import winston from 'winston';
 const { format, transports, createLogger, combine } = winston;
 const { CATEGORY } = "PromoApp format";
 let logger = loglevel.getLogger( 'apollo-server' );
@@ -53,7 +115,7 @@ logger = winston.createLogger( {
 
 // Error handling
 import { ApolloServerErrorCode } from '@apollo/server/errors';
-
+/*
 const myPlugin = {
   // Fires whenever a GraphQL request is received from a client.
   async requestDidStart ( requestContext )
@@ -87,9 +149,10 @@ const myPlugin = {
         } );
         logger.log( {
           level: "error",
-          message: `Request has errors! Errors:\n ${ errors.extensions }`
+          message: `Request has errors! @: ${ new Date( Date.now() ).toLocaleString() } `
+
         } );
-        if ( errors.extensions?.code === ApolloServerErrorCode.INTERNAL_SERVER_ERROR )
+        if ( errors.extensions?.code === 'INTERNAL_SERVER_ERROR' )
         {
           //GraphQLError.extensions.code
           logger.log( {
@@ -101,14 +164,14 @@ const myPlugin = {
         {
           logger.log( {
             level: "error",
-            message: `Request has errors! Errors:\n ECONNREFUSED`
+            message: `Request has errors! Errors: ECONNREFUSED`
           } );
 
         }
       }
     };
   }
-};
+};*/
 
 const configurations = {
   // Note: You may need sudo to run on port 443
@@ -118,7 +181,36 @@ const configurations = {
 
 const config = configurations[ process.env.NODE_ENV || 'production' ];
 
+const formatError = function ( error )
+{
+  const code = error?.originalError?.originalError?.code || error?.originalError?.code || error?.code
+  console.log( code );
+  let message = 'Eingabe enthält fehler: ';
+  if ( code === ApolloServerErrorCode.BAD_USER_INPUT )
+  {
+    throw new GraphQLError( message, {
+      extensions: { code: ApolloServerErrorCode.BAD_USER_INPUT, myCustomExtensions },
+    } );
+  }
+
+  return error
+}
+
 const app = express();
+
+if ( isProduction )
+{
+  app.use( ( req, res, next ) =>
+  {
+    if ( req.path === '/graphql' && req.method === 'GET' )
+    {
+      res.status( 404 ).send( 'Not found' );
+    } else
+    {
+      next();
+    }
+  } );
+}
 
 // Define your CORS settings for development
 const corsOptionsDev = {
@@ -137,7 +229,7 @@ const corsOptionsDev = {
 
 // Define your CORS settings for production
 const corsOptionsProd = {
-  origin: [ "https://morgengold.de", "https://www.morgengold.de" ],
+  origin: [ "https://morgengold.de/", "https://www.morgengold.de/" ],
   credentials: true // <-- REQUIRED backend setting
 };
 
@@ -145,13 +237,35 @@ const aCORS = isProduction ? corsOptionsProd : corsOptionsDev
 
 // Set up Apollo Server
 const server = new ApolloServer( {
-  typeDefs,
+  schema,
   resolvers,
-  introspection: true,
+  /*   formatError: ( formattedError, error ) =>
+    {
+      console.log( "-------------------------------1\n\n", formattedError.extensions.code );
+      // Return a different error message
+      if ( formattedError.extensions.code.toLocaleString() === 'INTERNAL_SERVER_ERROR' &&
+        formattedError.message.toLocaleString().contains( '' )
+      ) 
+      {
+        console.log( "-------------------------------2\n\n", JSON.parse( formattedError.message ) );
+        return {
+          ...formattedError,
+          message: "Eingabe Validierung hat Fehler festgestellt.",
+          error: error
+        };
+      }
+  
+      // Otherwise return the formatted error. This error can also
+      // be manipulated in other ways, as long as it's returned.
+      //return formattedError;
+    }, */
+  // introspection is not allowed for production
+  introspection: isProduction ? false : true,
   csrfPrevention: true,
   cache: "bounded",
   logger,
   status400ForVariableCoercionErrors: true,
+  includeStacktraceInErrorResponses: false,
   cors: {
     aCORS
   },
@@ -169,7 +283,10 @@ const server = new ApolloServer( {
       ? []
       : [ ApolloServerPluginLandingPageLocalDefault( { embed: true } ) ] ), // disable in production
     ApolloServerPluginInlineTrace(),
-    myPlugin
+    createApolloQueryValidationPlugin( {
+      schema
+    } )/*,
+    myPlugin*/
   ]
 } );
 
