@@ -3,320 +3,270 @@ const { gql } = pkg;
 
 const typeDefs = gql`
 
-scalar Date
-scalar JSONObject
+  scalar Date
+  scalar JSONObject
 
-type Query {
-	getPing: String
-	postLogin( username: String!, password: String!):User
-	getFind(id: ID!): JSONObject
-	getFindByUser: [TimeRecording]   
-	getFindRange(from: Int, to: Int): JSONObject    
-	getCount: Int
-	getFindUser(id: ID!) : JSONObject
-	getUserData: JSONObject
-	getUserCount: Int
-	getFindCustomer: JSONObject
-	getFindCustomerByUser: JSONObject
-	getFindCustomerRange(from: Int, to: Int ): JSONObject 
-	getCustomerCount: Int
-}
-
-enum Salutation {
-	Herr
-	Frau
-	Familie
-	All
-	Firma
-}
-
-enum Status {
-	AKTIV
-	INAKTIV
-	GELOESCHT
-	BANKROTT
-	INTERESSENT
-	ABGELEHNT
-}
-
-type User {
-	id: ID!
-	name: String!
-	firstName: String
-	salutation: Salutation
-	status: Status
-	username: String
-	roles: [String]
-	areaName: String
-	companyName: String
-	locked: Boolean
-	jwtToken: String
-	errorMessage: String
-	deliveryArea: [String]
-}
-type TimeRecordingDistribute {
-	timeRecording: TimeRecording!
-	noOfFlyers: Int
-	timeRecordingCol: TimeRecordingCollection
-}
-
-type TimeRecordingCollection {
-	timeRecording: TimeRecording!
-	samples: [PromoSample]
-}
-
-type TimeRecording {
-	id: ID!
-	description: String
-	startTime: Date!
-	endTime: Date!
-	workDate: Date!
-	user: User
-}
-
-type PromoterActivityCTACollectOutput {
-    id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	tentantsAcquired: Int,
-	distributionActivityId: String,
-	promoSamples: [PromoSample]!
-}
-
-type PromoterActivityCTADistributeOutput {
-   	id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	flyersDistributed: Int
-}
-
-type PromoterActivityDriveOutput {
-    id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	distanceDriven: Int
-}
-
-type PromoterActivityHAOutput {
-    id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	tentantsAcquired: Int,
-	tentantsNotMet: Int,
-	tentantsNoNeed: Int,
-	promoSamples: [PromoSample]!
-}
-
-
-type PromoterActivities {
-	ctaCollectActivities : [PromoterActivityCTACollectOutput]
-	ctaDistributeActivities : [PromoterActivityCTADistributeOutput]
-	driveActivities : [PromoterActivityDriveOutput]
-	haActivities : [PromoterActivityHAOutput]
-}
-
-input PromoterActivitiesInput {
-	ctaCollectActivities : [PromoterActivityCTACollect]
-	ctaDistributeActivities : [PromoterActivityCTADistribute]
-	driveActivities : [PromoterActivityDrive]
-	haActivities : [PromoterActivityHA]
-}
-
-
-type PromoSample {
-	id: ID!
-	birthDate: Date!
-	callingTime: String
-	city: String
-	cityInfor: String
-	companyName: String
-	country: String
-	deliveryDate: Date!
-	email: String
-	firstName: String
-	name: String
-	phone: String
-	postCode: String
-	storagePlace: String
-	remark: String
-	salutation: Salutation
-	streetAddrees: String
-	tenants: Int
-	user: User
-}
-
-
-input PlainPromoSample {
-	birthDate: Date!
-	callingTime: String
-	city: String
-	cityInfo: String
-	code: String
-	companyName: String
-	country: String
-	deliveryDate: Date!
-	email: String
-	firstName: String
-	name: String
-	phone: String
-	postCode: String
-	storagePlace: String
-	remark: String
-	salutation: Salutation
-	streetAddress: String
-	tenants: Int
-}
-
-
-input PromoterActivityHA {
-    id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	tentantsAcquired: Int,
-	tentantsNotMet: Int,
-	tentantsNoNeed: Int,
-	promoSamples: [PlainPromoSample]!
-}
-
-input PromoterActivityDrive {
-    id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	distanceDriven: Int
+  enum Status {
+    AKTIV
+    INAKTIV
+    GELOESCHT
+    BANKROTT
+    INTERESSENT
+    ABGELEHNT
   }
 
+  type PaginatedSampleDeliveries {
+  items: [SampleDelivery!]!
+  total: Int!
+}
+
+input PaginationInput {
+  limit: Int
+  page: Int
+}
+
+  type Query {
+    getPing: String
+    postLogin( username: String!, password: String!):User
+    getSampleDeliveries(calendarWeek: String!, paginate: PaginationInput): PaginatedSampleDeliveries!
+    getSalesAssistent(username: String!, password: String!): JSONObject
+  }
+  
+  enum Salutation {
+    Herr
+    Frau
+    Familie
+    All
+    Firma
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    firstName: String
+    lastName:  String
+    salutation: Salutation
+    status: Status
+    username: String
+    roles: [String]
+    areaName: String
+    companyName: String
+    locked: Boolean
+    jwtToken: String
+    errorMessage: String
+    deliveryArea: [String]
+  }
+
+  input PlainPromoSample {
+    birthDate: JavaDate
+    callingTime: DateTimeSSSZ
+    city: String @constraint(maxLength: 40)
+    cityInfo: String @constraint(maxLength: 5)
+    code: String
+    companyName: String @constraint(maxLength: 40) 
+    country: String @constraint(maxLength: 40) 
+    deliveryDate:  JavaDate
+    email: String @constraint(format: "email")
+    firstName: String @constraint(maxLength: 80),
+    name: String @constraint(minLength: 1, maxLength: 40) 
+    phone: String @constraint(pattern: "^[0-9]*$", minLength: 4, maxLength: 20)
+    postCode: String @constraint(maxLength: 10)
+    storagePlace: String @constraint(maxLength: 255)
+    remark: String @constraint(maxLength: 255)
+    salutation: Salutation
+    streetAddress: String @constraint(maxLength: 40)
+    tenants: Int @constraint(pattern: "^[0-9]*$")
+  }
+
+  input PromoterActivitiesInput {
+    ctaCollectActivities : [PromoterActivityCTACollect]
+    ctaDistributeActivities : [PromoterActivityCTADistribute]
+    driveActivities : [PromoterActivityDrive]
+    haActivities : [PromoterActivityHA]
+  }
+  
+  input PromoterActivityHA {
+    id: ID!
+    startTime: DateTimeSSSZ
+    endTime:  DateTimeSSSZ
+    duration: Int @constraint(pattern: "^[0-9]*$")
+    description: String @constraint(maxLength: 255)
+    tentantsAcquired: Int @constraint(pattern: "^[0-9]*$")
+    tentantsNotMet: Int @constraint(pattern: "^[0-9]*$")
+    tentantsNoNeed: Int @constraint(pattern: "^[0-9]*$")
+    promoSamples: [PlainPromoSample]!
+  }
+  
+  input PromoterActivityDrive {
+    id: ID!
+    startTime: DateTimeSSSZ
+    endTime: DateTimeSSSZ
+    duration: Int @constraint(pattern: "^[0-9]*$")
+    description: String @constraint(maxLength: 255),
+    distanceDriven: Int @constraint(pattern: "^[0-9]*$")
+    }
+  
   input PromoterActivityCTADistribute {
-   	id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	flyersDistributed: Int
+      id: ID!
+      startTime: DateTimeSSSZ
+      endTime: DateTimeSSSZ
+      duration: Int @constraint(pattern: "^[0-9]*$")
+      description: String @constraint(maxLength: 255),
+      flyersDistributed: Int @constraint(pattern: "^[0-9]*$")
+  }
+  
+  input PromoterActivityCTACollect {
+    id: ID!,
+    startTime: DateTimeSSSZ
+    endTime: DateTimeSSSZ
+    duration: Int @constraint(pattern: "^[0-9]*$")
+    description: String @constraint(maxLength: 255),
+    tentantsAcquired: Int @constraint(pattern: "^[0-9]*$")
+    distributionActivityId: String
+    promoSamples: [PlainPromoSample]!
+  }
+
+  type Mutation {
+    postCreatePromoterActivities(entities: PromoterActivitiesInput!): JSONObject!
+    saveSampleDelivery(sampleDelivery: SampleDeliveryInput): JSONObject!
+    acceptSampleDelivery(sampleDelivery: SampleDeliveryInput): JSONObject!
+  }
+ 
+  scalar DateTimeSSSZ
+  scalar JavaDate
+
+  # Declarations for Sales-App
+
+  type SampleDelivery {
+    id: ID!
+   	customer: ID!
+    customerData: Customer
+    deliveryDate: JavaDate
+    orderDate: JavaDate!
+    accepted: Int
+    note: String
+    followUp: JavaDate
+    editor: ID	
+    deliveryAddress: DeliveryAddress
+  }
+
+  type Address {
+    city: String! 
+    cityInfo: String    
+    firstName: String! 
+    name: String!   
+    postCode: String! 
+    streetAddress: String!
+  }
+
+  type DeliveryAddress {  
+    deliveryDate:  JavaDate   
+    address: Address! 
+  }
+
+  type Customer {
+    id: ID!
+    name: String!
+    firstName: String
+    salutation: Salutation    
+    companyName: String
+    dateOfBirth: JavaDate!
+    email: String 
+    fax: String 
+    mobilePhone:  String      
+    phone: String!    
+    city: String!          
+    postCode: String! 
+    streetAddress: String!
+    paymentMethod: PaymentMethod!
+    membersInHousehold: Int
+    postInvoice: Boolean
+    advertisePerEmail: Boolean
+    discountRate: Int
+    deliveryRate1: Float
+    deliveryRate2: Float
+    password: String
+    storageLocation: String
+    iban: String
+    bic: String
+    bank: String
+    acHolder: String
+  }
+
+  type PaginatedSampleDeliveries {
+  items: [SampleDelivery!]!
+  hasNextPage: Boolean!
+  totalPages: Int!
 }
 
-input PromoterActivityCTACollect {
-   	id: ID!,
-	startTime: String,
-	endTime: String,
-	duration: Int,
-	description: String,
-	tentantsAcquired: Int,
-	distributionActivityId: String,
-	promoSamples: [PlainPromoSample]!
-}
+  type Contact {
+    email: String 
+    fax: String 
+    mobilePhone:  String      
+    phone: String!    
+  }
 
-input PromoSampleInput {
-	salutation: Salutation
-	firstName: String
-	name: String
-	companyName: String
-	phone: String
-	code : String
-	email: String
-	streetAddress: String
-	postCode: String
-	city: String
-	cityInfo: String
-	birthDate: Date
-	tenants: Int
-	remark: String
-	deliveryDate: Date
-}
+  enum PaymentMethod {
+    Invoice
+    DEBIT   
+  }
 
-type LieferAngaben {
-	abweichendeOrtsbez: String
-	ablageort: String
-	anzahlParteien: Int
-	wunschdatum: Date
-	anmerkung: String
-}
+  type OtherDetails {
+    membersInHousehold: Int
+    postInvoice: Boolean
+    advertisePerEmail: Boolean
+    discountRate: Int
+    deliveryRate1: Float
+    deliveryRate2: Float
+    password: String
+  }
 
-type UserAddress {
-	street: String
-	postCode: String
-	city: String        
-}
+  type SalesAssistent {
+    id: ID!   
+    phone: String!
+    userName: String!
+    name: String!
+    firstName: String!
+    salutation: Salutation    
+    contact: Contact!
+    password: String
+    bankDetails: BankDetails
+    address: Address!
+  }
 
-input EntriesTimeRecording {
-	description: String
-	startTime: Date
-	endTime: Date
-	workDate: Date  
-}
+  type BankDetails {
+    iban: String
+    bic: String
+    bank: String
+    acHolder: String
+  }
 
-input UserUpdate {
-	token: String!
-	message: String
-	username: String!
-	password: String!
-}
+  input SampleDeliveryInput {
+    id: ID!
+   	customer: ID!
+    deliveryDate: JavaDate
+    orderDate: JavaDate!
+    accepted: Int
+    note: String
+    followUp: JavaDate
+    editor: ID	
+    deliveryAddress: DeliveryAddressInput
+  }
 
-input UserLoginRequest {
-	username: String!
-	password: String!
-}
+  input DeliveryAddressInput {  
+    deliveryDate:  JavaDate   
+    address: AddressInput! 
+  }
 
-input UserUpdate {
-	token: String!
-	message: String
-	username: String!
-	password: String!
-	email: String!
-	token: String
-}
-input UserInput {
-	name: String!
-	firstName: String
-	salutation: Salutation
-	status: Status
-	username: String
-	role: String
-	companyName: String
-	
-}
+  input AddressInput {
+    city: String! 
+    cityInfo: String    
+    firstName: String! 
+    name: String!   
+    postCode: String! 
+    streetAddress: String!
+  }
 
-type Mutation {
-	# Save, edit, delete TimeRecordings
-	postCreateTimeRecordings(entities: [EntriesTimeRecording]!): [TimeRecording]!
-	editTimeRecording(id: [ID]!, entity: EntriesTimeRecording!): TimeRecording!
-	deleteTimeRecording(id: EntriesTimeRecording!): TimeRecording!
-
-	# Save, edit, delete PromoSamples
-	postCreatePromoSamples(entities: [PromoSampleInput]!): [Int]!
-
-	editPromoSample(id: [ID]!, entity: PromoSampleInput!): PromoSample!
-	deletePromoSample(id: PromoSampleInput!): PromoSample!
-
-	# Edit User
-	editUser(id: [ID]!, entity: UserInput!): User!
-
-	# Save PromoterActivityHA
-	postCreatePromoterActivityHA(entities: [PromoterActivityHA]!): JSONObject!
-	# Save PromoterDriveActivity
-	postCreatePromoterDriveActivity(entities: [PromoterActivityDrive]!): JSONObject!
-	# Save postCreatePromoterActivityCTADistribute
-	postCreatePromoterActivityCTADistribute(entities: [PromoterActivityCTADistribute]!): JSONObject!
-	# Save postCreatePromoterActivityCTACollect
-	postCreatePromoterActivityCTACollect(entities: [PromoterActivityCTACollect]!): JSONObject!
-	# Save postCreatePromoterActivities
-	postCreatePromoterActivities(entities: PromoterActivitiesInput!): JSONObject!
-
-	postCreate(type: [EntriesTimeRecording]!): [TimeRecording]!
-	postLogin(userLoginRequest: UserLoginRequest!): JSONObject
-}
-
-` ;
+`;
 
 export default typeDefs;
